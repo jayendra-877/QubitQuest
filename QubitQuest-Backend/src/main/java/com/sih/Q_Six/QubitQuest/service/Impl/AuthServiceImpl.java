@@ -6,6 +6,7 @@ import com.sih.Q_Six.QubitQuest.dtos.SignupRequest;
 import com.sih.Q_Six.QubitQuest.dtos.UserProfileResponse;
 import com.sih.Q_Six.QubitQuest.entity.User;
 import com.sih.Q_Six.QubitQuest.enums.Role;
+import com.sih.Q_Six.QubitQuest.exceptions.BadRequestException;
 import com.sih.Q_Six.QubitQuest.repository.UserRepository;
 import com.sih.Q_Six.QubitQuest.security.AuthUtil;
 import com.sih.Q_Six.QubitQuest.service.AuthService;
@@ -26,7 +27,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse signup(SignupRequest request) {
-        userRepository.findByEmail(request.email()).orElse(null);
+        userRepository.findByEmail(request.email()).ifPresent(user -> {
+            throw new BadRequestException("User already exists with email: "+request.email());
+        });
 
         User user = toUserEntity(request);
         user.setPasswordHash(passwordEncoder.encode(request.password()));
