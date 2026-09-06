@@ -211,66 +211,107 @@ def get_statevector(qubits, gates):
     ]
 
 
-def get_bloch_coordinates(qubits, gates):
-    statevector = get_statevector(qubits, gates)
+def get_single_qubit_density_matrix(
+    amplitudes,
+    qubits,
+    target_qubit,
+):
+    """
+    Calculate the reduced density matrix for one qubit.
 
-    amplitudes = np.array([
-        complex(item["real"], item["imaginary"])
-        for item in statevector
-    ])
+    Qiskit uses little-endian statevector ordering:
 
-    if qubits == 1:
-        alpha = amplitudes[0]
-        beta = amplitudes[1]
+        |q_(n-1) ... q_1 q_0>
 
-        x = 2 * (alpha.conjugate() * beta).real
-        y = 2 * (alpha.conjugate() * beta).imag
-        z = abs(alpha) ** 2 - abs(beta) ** 2
-
-        return {
-            "qubit_0": {
-                "x": round(float(x), 10),
-                "y": round(float(y), 10),
-                "z": round(float(z), 10),
-            }
-        }
+    Therefore the final tensor axis corresponds to
+    qubit 0.
+    """
 
     tensor = amplitudes.reshape([2] * qubits)
+
+    target_axis = qubits - 1 - target_qubit
+
+    other_axes = [
+        axis
+        for axis in range(qubits)
+        if axis != target_axis
+    ]
+
+    density_matrix = np.zeros(
+        (2, 2),
+        dtype=complex,
+    )
+
+    for row in range(2):
+        for column in range(2):
+
+            for other_values in np.ndindex(
+                *(2 for _ in other_axes)
+            ):
+                row_index = [0] * qubits
+                column_index = [0] * qubits
+
+                row_index[target_axis] = row
+                column_index[target_axis] = column
+
+                for axis, value in zip(
+                    other_axes,
+                    other_values,
+                ):
+                    row_index[axis] = value
+                    column_index[axis] = value
+
+                density_matrix[row, column] += (
+                    tensor[tuple(row_index)]
+                    * np.conjugate(
+                        tensor[tuple(column_index)]
+                    )
+                )
+
+    return density_matrix
+
+
+def get_bloch_coordinates(qubits, gates):
+    statevector = get_statevector(
+        qubits,
+        gates,
+    )
+
+    amplitudes = np.array(
+        [
+            complex(
+                item["real"],
+                item["imaginary"],
+            )
+            for item in statevector
+        ],
+        dtype=complex,
+    )
 
     bloch_vectors = {}
 
     for qubit in range(qubits):
-        other_qubits = [
-            index
-            for index in range(qubits)
-            if index != qubit
-        ]
+        density_matrix = get_single_qubit_density_matrix(
+            amplitudes=amplitudes,
+            qubits=qubits,
+            target_qubit=qubit,
+        )
 
-        rho = np.zeros((2, 2), dtype=complex)
+        # Pauli expectation values:
+        #
+        # X = 2 Re(rho[0,1])
+        # Y = -2 Im(rho[0,1])
+        # Z = rho[0,0] - rho[1,1]
+        #
+        # The negative sign for Y is required because
+        # rho[0,1] = alpha * conjugate(beta).
 
-        for i in range(2):
-            for j in range(2):
-                for values in np.ndindex(
-                    *(2 for _ in other_qubits)
-                ):
-                    ket_index = [0] * qubits
-                    bra_index = [0] * qubits
-
-                    ket_index[qubit] = i
-                    bra_index[qubit] = j
-
-                    for axis, value in zip(other_qubits, values):
-                        ket_index[axis] = value
-                        bra_index[axis] = value
-
-                    rho[i, j] += (
-                        tensor[tuple(ket_index)]
-                        * np.conjugate(tensor[tuple(bra_index)])
-                    )
-
-        x = 2 * rho[0, 1].real
-        y = 2 * rho[0, 1].imag
-        z = (rho[0, 0] - rho[1, 1]).real
+        x = 2 * density_matrix[0, 1].real
+        y = -2 * density_matrix[0, 1].imag
+        z = (
+            density_matrix[0, 0].real
+            - density_matrix[1, 1].real
+        )
 
         bloch_vectors[f"qubit_{qubit}"] = {
             "x": round(float(x), 10),
