@@ -1,10 +1,45 @@
 import time
+from collections import Counter
 
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
 
-SUPPORTED_GATES = {"H", "X", "Y", "Z", "CNOT"}
+SUPPORTED_GATES = {
+    "H",
+    "X",
+    "Y",
+    "Z",
+    "S",
+    "T",
+    "RX",
+    "RY",
+    "RZ",
+    "CNOT",
+    "CZ",
+    "SWAP",
+}
+
+SINGLE_QUBIT_GATES = {
+    "H",
+    "X",
+    "Y",
+    "Z",
+    "S",
+    "T",
+}
+
+PARAMETERIZED_GATES = {
+    "RX",
+    "RY",
+    "RZ",
+}
+
+TWO_QUBIT_GATES = {
+    "CNOT",
+    "CZ",
+    "SWAP",
+}
 
 
 def validate_gates(qubits, gates):
@@ -23,9 +58,11 @@ def validate_gates(qubits, gates):
                 f"Circuit has {qubits} qubits (0-{qubits - 1})."
             )
 
-        if gate_type == "CNOT":
+        if gate_type in TWO_QUBIT_GATES:
             if gate.control is None:
-                raise ValueError("CNOT gate requires a control qubit.")
+                raise ValueError(
+                    f"{gate_type} gate requires a second qubit in 'control'."
+                )
 
             if gate.control >= qubits:
                 raise ValueError(
@@ -35,7 +72,20 @@ def validate_gates(qubits, gates):
 
             if gate.control == gate.target:
                 raise ValueError(
-                    "CNOT control and target qubits cannot be the same."
+                    f"{gate_type} gate cannot use the same qubit twice."
+                )
+
+        if gate_type in PARAMETERIZED_GATES:
+            if len(gate.params) != 1:
+                raise ValueError(
+                    f"{gate_type} gate requires exactly one parameter "
+                    f"in 'params'."
+                )
+
+        if gate_type in SINGLE_QUBIT_GATES or gate_type in TWO_QUBIT_GATES:
+            if gate.params:
+                raise ValueError(
+                    f"{gate_type} gate does not accept parameters."
                 )
 
 
@@ -57,16 +107,56 @@ def build_circuit(qubits, gates):
         elif gate_type == "Z":
             qc.z(gate.target)
 
+        elif gate_type == "S":
+            qc.s(gate.target)
+
+        elif gate_type == "T":
+            qc.t(gate.target)
+
+        elif gate_type == "RX":
+            qc.rx(gate.params[0], gate.target)
+
+        elif gate_type == "RY":
+            qc.ry(gate.params[0], gate.target)
+
+        elif gate_type == "RZ":
+            qc.rz(gate.params[0], gate.target)
+
         elif gate_type == "CNOT":
             qc.cx(gate.control, gate.target)
 
+        elif gate_type == "CZ":
+            qc.cz(gate.control, gate.target)
+
+        elif gate_type == "SWAP":
+            qc.swap(gate.control, gate.target)
+
     return qc
+
+
+def get_circuit_metadata(qubits, gates):
+    validate_gates(qubits, gates)
+
+    qc = build_circuit(qubits, gates)
+
+    gate_counts = Counter(
+        gate.type.upper()
+        for gate in gates
+    )
+
+    return {
+        "qubits": qubits,
+        "gate_count": len(gates),
+        "depth": qc.depth(),
+        "gate_counts": dict(gate_counts),
+    }
 
 
 def run_circuit(qubits, gates, shots=1000):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
+
     qc.measure(range(qubits), range(qubits))
 
     simulator = AerSimulator()
@@ -91,7 +181,8 @@ def run_circuit(qubits, gates, shots=1000):
     return {
         "counts": counts,
         "probabilities": probabilities,
-        "execution_time_ms": execution_time_ms
+        "execution_time_ms": execution_time_ms,
+        "metadata": get_circuit_metadata(qubits, gates),
     }
 
 
@@ -99,6 +190,7 @@ def get_statevector(qubits, gates):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
+
     qc.save_statevector()
 
     simulator = AerSimulator(method="statevector")
