@@ -1,6 +1,7 @@
 import time
 from collections import Counter
 
+import numpy as np
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
@@ -156,7 +157,6 @@ def run_circuit(qubits, gates, shots=1000):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
-
     qc.measure(range(qubits), range(qubits))
 
     simulator = AerSimulator()
@@ -190,7 +190,6 @@ def get_statevector(qubits, gates):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
-
     qc.save_statevector()
 
     simulator = AerSimulator(method="statevector")
@@ -199,12 +198,16 @@ def get_statevector(qubits, gates):
 
     statevector = result.get_statevector()
 
+    # Explicitly convert Qiskit's Statevector object
+    # to a NumPy array to avoid deprecated array access.
+    statevector_array = np.asarray(statevector)
+
     return [
         {
             "real": float(amplitude.real),
             "imaginary": float(amplitude.imag)
         }
-        for amplitude in statevector
+        for amplitude in statevector_array
     ]
 
 
