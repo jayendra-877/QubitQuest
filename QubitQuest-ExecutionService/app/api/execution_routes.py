@@ -1,7 +1,11 @@
 from fastapi import APIRouter, HTTPException
 
 from app.models.circuit_models import CircuitRequest, CircuitResponse
-from app.services.qiskit_service import run_circuit, get_statevector
+from app.services.qiskit_service import (
+    run_circuit,
+    get_statevector,
+    get_bloch_coordinates
+)
 
 
 router = APIRouter()
@@ -18,12 +22,16 @@ def execute_circuit(request: CircuitRequest):
 
         return {
             "success": True,
+            "status": "completed",
             "backend": "qiskit_aer",
             "framework": "qiskit",
             "shots": request.shots,
             "counts": result["counts"],
             "probabilities": result["probabilities"],
-            "execution_time_ms": result["execution_time_ms"]
+            "statevector": None,
+            "bloch_sphere": None,
+            "execution_time_ms": result["execution_time_ms"],
+            "error": None
         }
 
     except ValueError as e:
@@ -49,10 +57,12 @@ def get_circuit_statevector(request: CircuitRequest):
 
         return {
             "success": True,
+            "status": "completed",
             "backend": "qiskit_aer",
             "framework": "qiskit",
             "qubits": request.qubits,
-            "statevector": statevector
+            "statevector": statevector,
+            "error": None
         }
 
     except ValueError as e:
@@ -65,4 +75,35 @@ def get_circuit_statevector(request: CircuitRequest):
         raise HTTPException(
             status_code=500,
             detail=f"Statevector calculation failed: {str(e)}"
+        )
+
+
+@router.post("/bloch-sphere")
+def get_bloch_sphere(request: CircuitRequest):
+    try:
+        coordinates = get_bloch_coordinates(
+            qubits=request.qubits,
+            gates=request.gates
+        )
+
+        return {
+            "success": True,
+            "status": "completed",
+            "backend": "qiskit_aer",
+            "framework": "qiskit",
+            "qubits": request.qubits,
+            "coordinates": coordinates,
+            "error": None
+        }
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Bloch sphere calculation failed: {str(e)}"
         )

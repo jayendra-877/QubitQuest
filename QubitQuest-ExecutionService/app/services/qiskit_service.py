@@ -3,6 +3,7 @@ import time
 from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 
+
 SUPPORTED_GATES = {"H", "X", "Y", "Z", "CNOT"}
 
 
@@ -65,7 +66,6 @@ def build_circuit(qubits, gates):
 def run_circuit(qubits, gates, shots=1000):
     validate_gates(qubits, gates)
 
-    # Build circuit for measurement
     qc = build_circuit(qubits, gates)
     qc.measure(range(qubits), range(qubits))
 
@@ -98,10 +98,7 @@ def run_circuit(qubits, gates, shots=1000):
 def get_statevector(qubits, gates):
     validate_gates(qubits, gates)
 
-    # Build circuit WITHOUT measurement
     qc = build_circuit(qubits, gates)
-
-    # Ask Aer for the statevector
     qc.save_statevector()
 
     simulator = AerSimulator(method="statevector")
@@ -117,3 +114,32 @@ def get_statevector(qubits, gates):
         }
         for amplitude in statevector
     ]
+
+
+def get_bloch_coordinates(qubits, gates):
+    if qubits != 1:
+        raise ValueError(
+            "Bloch sphere visualization currently supports exactly 1 qubit."
+        )
+
+    statevector = get_statevector(qubits, gates)
+
+    alpha = complex(
+        statevector[0]["real"],
+        statevector[0]["imaginary"]
+    )
+
+    beta = complex(
+        statevector[1]["real"],
+        statevector[1]["imaginary"]
+    )
+
+    x = 2 * (alpha.conjugate() * beta).real
+    y = 2 * (alpha.conjugate() * beta).imag
+    z = abs(alpha) ** 2 - abs(beta) ** 2
+
+    return {
+        "x": round(x, 10),
+        "y": round(y, 10),
+        "z": round(z, 10)
+    }

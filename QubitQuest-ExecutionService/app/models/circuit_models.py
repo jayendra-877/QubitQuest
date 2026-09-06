@@ -17,10 +17,17 @@ class CircuitRequest(BaseModel):
 
 class CircuitResponse(BaseModel):
     success: bool
+    status: str
     backend: str
     framework: str
     shots: int
+
     counts: Dict[str, int]
     probabilities: Dict[str, float]
-    statevector: Optional[List[complex]] = None
+
+    statevector: Optional[List[Dict[str, float]]] = None
+    bloch_sphere: Optional[Dict[str, float]] = None
+
     execution_time_ms: float
+
+    error: Optional[str] = None
