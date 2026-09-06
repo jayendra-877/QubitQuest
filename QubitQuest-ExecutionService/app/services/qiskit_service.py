@@ -38,10 +38,7 @@ def validate_gates(qubits, gates):
                 )
 
 
-def run_circuit(qubits, gates, shots=1000):
-    validate_gates(qubits, gates)
-
-    # Circuit for measurement
+def build_circuit(qubits, gates):
     qc = QuantumCircuit(qubits, qubits)
 
     for gate in gates:
@@ -62,6 +59,14 @@ def run_circuit(qubits, gates, shots=1000):
         elif gate_type == "CNOT":
             qc.cx(gate.control, gate.target)
 
+    return qc
+
+
+def run_circuit(qubits, gates, shots=1000):
+    validate_gates(qubits, gates)
+
+    # Build circuit for measurement
+    qc = build_circuit(qubits, gates)
     qc.measure(range(qubits), range(qubits))
 
     simulator = AerSimulator()
@@ -88,3 +93,27 @@ def run_circuit(qubits, gates, shots=1000):
         "probabilities": probabilities,
         "execution_time_ms": execution_time_ms
     }
+
+
+def get_statevector(qubits, gates):
+    validate_gates(qubits, gates)
+
+    # Build circuit WITHOUT measurement
+    qc = build_circuit(qubits, gates)
+
+    # Ask Aer for the statevector
+    qc.save_statevector()
+
+    simulator = AerSimulator(method="statevector")
+
+    result = simulator.run(qc).result()
+
+    statevector = result.get_statevector()
+
+    return [
+        {
+            "real": float(amplitude.real),
+            "imaginary": float(amplitude.imag)
+        }
+        for amplitude in statevector
+    ]
