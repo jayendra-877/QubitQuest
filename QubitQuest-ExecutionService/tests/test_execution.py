@@ -101,9 +101,9 @@ def test_bloch_sphere_hadamard():
         gates=[gate("H", 0)],
     )
 
-    assert coordinates["x"] == pytest.approx(1)
-    assert coordinates["y"] == pytest.approx(0)
-    assert coordinates["z"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["x"] == pytest.approx(1)
+    assert coordinates["qubit_0"]["y"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["z"] == pytest.approx(0)
 
 
 def test_bloch_sphere_zero_state():
@@ -112,9 +112,9 @@ def test_bloch_sphere_zero_state():
         gates=[],
     )
 
-    assert coordinates["x"] == pytest.approx(0)
-    assert coordinates["y"] == pytest.approx(0)
-    assert coordinates["z"] == pytest.approx(1)
+    assert coordinates["qubit_0"]["x"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["y"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["z"] == pytest.approx(1)
 
 
 def test_bloch_sphere_one_state():
@@ -123,9 +123,52 @@ def test_bloch_sphere_one_state():
         gates=[gate("X", 0)],
     )
 
-    assert coordinates["x"] == pytest.approx(0)
-    assert coordinates["y"] == pytest.approx(0)
-    assert coordinates["z"] == pytest.approx(-1)
+    assert coordinates["qubit_0"]["x"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["y"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["z"] == pytest.approx(-1)
+
+
+def test_bell_state_bloch_vectors():
+    coordinates = get_bloch_coordinates(
+        qubits=2,
+        gates=[
+            gate("H", 0),
+            gate("CNOT", 1, control=0),
+        ],
+    )
+
+    assert coordinates["qubit_0"]["x"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["y"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["z"] == pytest.approx(0)
+
+    assert coordinates["qubit_1"]["x"] == pytest.approx(0)
+    assert coordinates["qubit_1"]["y"] == pytest.approx(0)
+    assert coordinates["qubit_1"]["z"] == pytest.approx(0)
+
+
+def test_two_qubit_product_state_bloch_vectors():
+    coordinates = get_bloch_coordinates(
+        qubits=2,
+        gates=[
+            gate("X", 0),
+        ],
+    )
+
+    assert coordinates["qubit_0"]["z"] == pytest.approx(-1)
+    assert coordinates["qubit_1"]["z"] == pytest.approx(1)
+
+
+def test_rx_bloch_vector():
+    coordinates = get_bloch_coordinates(
+        qubits=1,
+        gates=[
+            gate("RX", 0, params=[1.57079632679]),
+        ],
+    )
+
+    assert coordinates["qubit_0"]["x"] == pytest.approx(0)
+    assert coordinates["qubit_0"]["y"] == pytest.approx(-1)
+    assert coordinates["qubit_0"]["z"] == pytest.approx(0)
 
 
 def test_rx_requires_parameter():
@@ -170,12 +213,4 @@ def test_cnot_same_qubit():
             qubits=2,
             gates=[gate("CNOT", 1, control=1)],
             shots=100,
-        )
-
-
-def test_bloch_sphere_requires_one_qubit():
-    with pytest.raises(ValueError):
-        get_bloch_coordinates(
-            qubits=2,
-            gates=[],
         )

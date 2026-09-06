@@ -157,6 +157,7 @@ def run_circuit(qubits, gates, shots=1000):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
+
     qc.measure(range(qubits), range(qubits))
 
     simulator = AerSimulator()
@@ -190,6 +191,7 @@ def get_statevector(qubits, gates):
     validate_gates(qubits, gates)
 
     qc = build_circuit(qubits, gates)
+
     qc.save_statevector()
 
     simulator = AerSimulator(method="statevector")
@@ -198,43 +200,82 @@ def get_statevector(qubits, gates):
 
     statevector = result.get_statevector()
 
-    # Explicitly convert Qiskit's Statevector object
-    # to a NumPy array to avoid deprecated array access.
     statevector_array = np.asarray(statevector)
 
     return [
         {
             "real": float(amplitude.real),
-            "imaginary": float(amplitude.imag)
+            "imaginary": float(amplitude.imag),
         }
         for amplitude in statevector_array
     ]
 
 
 def get_bloch_coordinates(qubits, gates):
-    if qubits != 1:
-        raise ValueError(
-            "Bloch sphere visualization currently supports exactly 1 qubit."
-        )
-
     statevector = get_statevector(qubits, gates)
 
-    alpha = complex(
-        statevector[0]["real"],
-        statevector[0]["imaginary"]
-    )
+    amplitudes = np.array([
+        complex(item["real"], item["imaginary"])
+        for item in statevector
+    ])
 
-    beta = complex(
-        statevector[1]["real"],
-        statevector[1]["imaginary"]
-    )
+    if qubits == 1:
+        alpha = amplitudes[0]
+        beta = amplitudes[1]
 
-    x = 2 * (alpha.conjugate() * beta).real
-    y = 2 * (alpha.conjugate() * beta).imag
-    z = abs(alpha) ** 2 - abs(beta) ** 2
+        x = 2 * (alpha.conjugate() * beta).real
+        y = 2 * (alpha.conjugate() * beta).imag
+        z = abs(alpha) ** 2 - abs(beta) ** 2
 
-    return {
-        "x": round(x, 10),
-        "y": round(y, 10),
-        "z": round(z, 10)
-    }
+        return {
+            "qubit_0": {
+                "x": round(float(x), 10),
+                "y": round(float(y), 10),
+                "z": round(float(z), 10),
+            }
+        }
+
+    tensor = amplitudes.reshape([2] * qubits)
+
+    bloch_vectors = {}
+
+    for qubit in range(qubits):
+        other_qubits = [
+            index
+            for index in range(qubits)
+            if index != qubit
+        ]
+
+        rho = np.zeros((2, 2), dtype=complex)
+
+        for i in range(2):
+            for j in range(2):
+                for values in np.ndindex(
+                    *(2 for _ in other_qubits)
+                ):
+                    ket_index = [0] * qubits
+                    bra_index = [0] * qubits
+
+                    ket_index[qubit] = i
+                    bra_index[qubit] = j
+
+                    for axis, value in zip(other_qubits, values):
+                        ket_index[axis] = value
+                        bra_index[axis] = value
+
+                    rho[i, j] += (
+                        tensor[tuple(ket_index)]
+                        * np.conjugate(tensor[tuple(bra_index)])
+                    )
+
+        x = 2 * rho[0, 1].real
+        y = 2 * rho[0, 1].imag
+        z = (rho[0, 0] - rho[1, 1]).real
+
+        bloch_vectors[f"qubit_{qubit}"] = {
+            "x": round(float(x), 10),
+            "y": round(float(y), 10),
+            "z": round(float(z), 10),
+        }
+
+    return bloch_vectors
