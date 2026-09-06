@@ -1,18 +1,13 @@
 from fastapi import APIRouter, HTTPException
 
-from app.models.circuit_models import CircuitRequest
+from app.models.circuit_models import CircuitRequest, CircuitResponse
 from app.services.qiskit_service import run_circuit
-
 
 router = APIRouter()
 
 
-@router.post("/execute")
+@router.post("/execute", response_model=CircuitResponse)
 def execute_circuit(request: CircuitRequest):
-    """
-    Execute a quantum circuit using Qiskit Aer.
-    """
-
     try:
         result = run_circuit(
             qubits=request.qubits,
@@ -23,6 +18,7 @@ def execute_circuit(request: CircuitRequest):
         return {
             "success": True,
             "backend": "qiskit_aer",
+            "framework": "qiskit",
             "shots": request.shots,
             "counts": result["counts"],
             "probabilities": result["probabilities"],
