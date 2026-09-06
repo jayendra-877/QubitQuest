@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +14,7 @@ class CircuitRequest(BaseModel):
     qubits: int = Field(gt=0, le=20)
     gates: List[Gate]
     shots: int = Field(default=1000, gt=0, le=100000)
+    mode: Literal["measure", "statevector", "bloch", "all"] = "measure"
 
 
 class CircuitMetadata(BaseModel):
@@ -28,13 +29,14 @@ class CircuitResponse(BaseModel):
     status: str
     backend: str
     framework: str
+    mode: str
     shots: int
 
-    counts: Dict[str, int]
-    probabilities: Dict[str, float]
+    counts: Optional[Dict[str, int]] = None
+    probabilities: Optional[Dict[str, float]] = None
 
     statevector: Optional[List[Dict[str, float]]] = None
-    bloch_sphere: Optional[Dict[str, float]] = None
+    bloch_sphere: Optional[Dict[str, Dict[str, float]]] = None
 
     metadata: CircuitMetadata
 

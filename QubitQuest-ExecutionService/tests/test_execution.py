@@ -1,11 +1,11 @@
 import pytest
 
-from app.services.qiskit_service import (
-    run_circuit,
-    get_statevector,
-    get_bloch_coordinates,
-)
 from app.models.circuit_models import Gate
+from app.services.qiskit_service import (
+    get_bloch_coordinates,
+    get_statevector,
+    run_circuit,
+)
 
 
 def gate(gate_type, target, control=None, params=None):
@@ -214,3 +214,51 @@ def test_cnot_same_qubit():
             gates=[gate("CNOT", 1, control=1)],
             shots=100,
         )
+
+
+def test_measure_mode():
+    from app.models.circuit_models import CircuitRequest
+
+    request = CircuitRequest(
+        qubits=1,
+        gates=[gate("X", 0)],
+        mode="measure",
+    )
+
+    assert request.mode == "measure"
+
+
+def test_statevector_mode():
+    from app.models.circuit_models import CircuitRequest
+
+    request = CircuitRequest(
+        qubits=1,
+        gates=[gate("H", 0)],
+        mode="statevector",
+    )
+
+    assert request.mode == "statevector"
+
+
+def test_bloch_mode():
+    from app.models.circuit_models import CircuitRequest
+
+    request = CircuitRequest(
+        qubits=1,
+        gates=[gate("H", 0)],
+        mode="bloch",
+    )
+
+    assert request.mode == "bloch"
+
+
+def test_all_mode():
+    from app.models.circuit_models import CircuitRequest
+
+    request = CircuitRequest(
+        qubits=1,
+        gates=[gate("H", 0)],
+        mode="all",
+    )
+
+    assert request.mode == "all"
