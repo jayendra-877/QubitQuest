@@ -3,13 +3,19 @@ package com.sih.Q_Six.QubitQuest.entity;
 import com.sih.Q_Six.QubitQuest.enums.ChallengeType;
 import com.sih.Q_Six.QubitQuest.enums.Difficulty;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.springframework.data.annotation.Id;
+
 
 import java.time.Instant;
 
 @Entity
+@NoArgsConstructor
+@Setter
+@Getter
 public class Challenge {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,4 +80,6 @@ public class Challenge {
 
     @UpdateTimestamp
     private Instant updatedAt;
+
+
 }
