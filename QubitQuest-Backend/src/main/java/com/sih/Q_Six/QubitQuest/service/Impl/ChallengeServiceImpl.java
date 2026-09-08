@@ -111,7 +111,7 @@ public class ChallengeServiceImpl implements ChallengeService {
     @Override
     public ExecuteResponseDto execute(String circuitJson) {
         circuitValidator.validate(circuitJson);
-        ExecutionRequest request = circuitMapper.toExecutionRequest(circuitJson);
+        ExecutionRequest request = circuitMapper.toExecutionRequest(circuitJson, "all"); // <-- mode param added
         ExecutionResult result = executionClient.run(request);
 
         if (!result.success()) {
@@ -124,7 +124,7 @@ public class ChallengeServiceImpl implements ChallengeService {
                 result.counts(),
                 result.probabilities(),
                 true,
-                result.executionTimeMs(),
+                result.execution_time_ms(),
                 result.statevector(),
                 result.blochSphere()
         );

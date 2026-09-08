@@ -3,9 +3,9 @@ package com.sih.Q_Six.QubitQuest.dtos;
 import java.util.Map;
 
 public record ExecutionMetadataDto(
-        int qubits,
-        int gateCount,
-        int depth,
+        Integer qubits,
+        Integer gateCount,
+        Integer depth,
         Map<String, Integer> gateCounts
 ) {
 }
