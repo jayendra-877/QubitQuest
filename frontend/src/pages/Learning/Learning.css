@@ -1,0 +1,165 @@
+.learning-layout {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem 2rem; /* Adjusted padding to account for container width changes */
+  min-height: calc(100vh - 100px);
+}
+
+.sidebar {
+  flex: 0 0 300px; /* Fixed width */
+  padding: 1.5rem;
+  background-color: #fff;
+  height: fit-content;
+  position: sticky;
+  top: 110px; /* Below navbar */
+}
+
+.topic-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.topic-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background-color: var(--color-bg);
+  font-weight: 800;
+  font-size: 1rem;
+  text-align: left;
+  transition: all var(--transition-speed);
+}
+
+.topic-btn:hover {
+  background-color: #e0f7fa;
+  transform: translateX(4px);
+}
+
+.topic-btn.active {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-border);
+  box-shadow: 0px 4px 0px var(--color-primary-dark), 0px 4px 0px 3px var(--color-border);
+}
+
+.topic-number {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  font-weight: 900;
+}
+
+.topic-btn.active .topic-number {
+  color: var(--color-primary);
+}
+
+.content-panel {
+  flex: 1;
+  padding: 3rem;
+  background-color: #fff;
+}
+
+/* Markdown Styling */
+.markdown-content h1 {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-primary);
+  margin-bottom: 1.5rem;
+  border-bottom: 4px solid var(--color-bg);
+  padding-bottom: 1rem;
+}
+
+.markdown-content h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.markdown-content h3 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content p {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.markdown-content ul, .markdown-content ol {
+  margin-left: 2rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.markdown-content li {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-content strong {
+  color: var(--color-text);
+  font-weight: 800;
+}
+
+.markdown-content blockquote {
+  border-left: 6px solid var(--color-secondary);
+  background-color: var(--color-bg);
+  padding: 1rem 1.5rem;
+  margin: 2rem 0;
+  border-radius: 0 12px 12px 0;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.markdown-content code {
+  background-color: var(--color-bg);
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  font-family: monospace;
+  font-weight: bold;
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-border);
+}
+
+.markdown-content pre code {
+  display: block;
+  padding: 1.5rem;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 3px solid var(--color-border);
+  box-shadow: 4px 4px 0px var(--color-border);
+  background-color: #282a36; /* Dracula dark theme for code blocks */
+  color: #f8f8f2;
+}
+
+@media (max-width: 900px) {
+  .learning-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    flex: none;
+    width: 100%;
+    position: static;
+  }
+}
