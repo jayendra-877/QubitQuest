@@ -34,6 +34,7 @@ const Navbar = () => {
         <div className="navbar-links">
           <Link to="/learning" className="nav-link">Learning</Link>
           <Link to="/challenges" className="nav-link">Challenges</Link>
+          <Link to="/sandbox" className="nav-link">Sandbox</Link>
           
           {location.pathname === '/' ? (
             <button className="nav-link nav-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Home</button>
