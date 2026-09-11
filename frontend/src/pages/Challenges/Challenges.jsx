@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import './Challenges.css';
 
 // Coordinates estimated from the 287x1024 image
@@ -23,25 +23,90 @@ const QUESTS = [
   { id: 'c10', stage: 3,title: 'Quest 10',completed: false, top: '12.7%', left: '29.6%' }
 ];
 
+const API_URL = 'http://localhost:8080/api/v1';
+
 const Challenges = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [challengesList, setChallengesList] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchChallenges = async () => {
+      try {
+        const res = await fetch(`${API_URL}/challenges?userId=1`);
+        const json = await res.json();
+        if (json.data) {
+          // Flatten all challenges from all missions into a single array
+          const allChallenges = [];
+          json.data.forEach(mission => {
+            // Keep the limit of 4 per mission if we want to respect the previous "4 per level" rule,
+            // or just take them all. The new map has exactly 10 nodes defined.
+            // I'll push all of them, the layout handles up to 10 gracefully based on the QUESTS coords.
+            mission.challenges.forEach(chal => {
+              allChallenges.push({ ...chal, missionTitle: mission.title });
+            });
+          });
+          setChallengesList(allChallenges);
+        }
+      } catch (e) {
+        console.error("Failed to load map data", e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchChallenges();
+  }, []);
+
+  useEffect(() => {
+    if (!loading) {
+      setTimeout(() => {
+        if (location.state && location.state.returnFrom) {
+          const element = document.getElementById(`challenge-node-${location.state.returnFrom}`);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+          }
+        }
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 100);
+    }
+  }, [loading, location.state]);
+
+  if (loading) {
+    return (
+      <div className="challenges-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#fff' }}>
+        <h2>Loading Map...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="challenges-page">
       <div className="map-wrapper">
         <img src="/pathway_svg_1.svg" alt="Quest Map" className="map-image" />
         
-        {QUESTS.map((quest, index) => (
-          <button 
-            key={quest.id}
-            className={`quest-node ${quest.completed ? 'completed' : 'locked'}`}
-            style={{ top: quest.top, left: quest.left }}
-            onClick={() => navigate(`/challenges/${quest.id}`)}
-            title={quest.title}
-          >
-            <span className="quest-number">{index + 1}</span>
-          </button>
-        ))}
+        {challengesList.map((chal, index) => {
+          // Map backend challenge to the hardcoded coordinates from QUESTS based on index
+          const pos = QUESTS[index] || { top: '50%', left: '50%' };
+          const isCompleted = chal.userStatus === 'COMPLETED';
+
+          return (
+            <button 
+              key={chal.id}
+              id={`challenge-node-${chal.id}`}
+              className={`quest-node ${isCompleted ? 'completed' : 'locked'}`}
+              style={{ top: pos.top, left: pos.left }}
+              onClick={() => navigate(`/challenges/${chal.id}`)}
+              title={`${chal.missionTitle} - ${chal.title} (${chal.challengeType})`}
+            >
+              <span className="quest-number">{index + 1}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

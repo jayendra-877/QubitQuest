@@ -1,16 +1,16 @@
 import React from 'react';
 import './CircuitCanvas.css';
 
-const NUM_QUBITS = 3;
-const NUM_STEPS = 5;
-
 const GATE_COLORS = {
   'X': '#58cc02', // Green
   'H': '#1cb0f6', // Blue
-  'CNOT': '#ff4b4b' // Red
+  'CNOT': '#ff4b4b', // Red
+  'CZ': '#8e44ad' // Purple
 };
 
-const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false }) => {
+const NUM_STEPS = 5;
+
+const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false, numQubits = 3 }) => {
   
   const handleDragStart = (e, gateType) => {
     if (isReadonly) return;
@@ -29,8 +29,8 @@ const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false }) => {
       const newGate = { type: gateType, qubit, step };
       
       // For CNOT, default target to adjacent qubit
-      if (gateType === 'CNOT') {
-        newGate.target = qubit === NUM_QUBITS - 1 ? qubit - 1 : qubit + 1;
+      if (gateType === 'CNOT' || gateType === 'CZ') {
+        newGate.target = qubit === numQubits - 1 ? qubit - 1 : qubit + 1;
       }
 
       setCircuit([...newCircuit, newGate]);
@@ -49,7 +49,7 @@ const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false }) => {
 
   // Build grid
   const grid = [];
-  for (let q = 0; q < NUM_QUBITS; q++) {
+  for (let q = 0; q < numQubits; q++) {
     const row = [];
     for (let s = 0; s < NUM_STEPS; s++) {
       const gate = circuit.find(g => g.qubit === q && g.step === s);
