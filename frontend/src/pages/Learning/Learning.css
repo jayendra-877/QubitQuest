@@ -1,17 +1,64 @@
 .learning-layout {
   display: flex;
-  gap: 2rem;
-  padding: 2rem 2rem; /* Adjusted padding to account for container width changes */
-  min-height: calc(100vh - 100px);
+  gap: 0;
+  margin: 2rem auto;
+  height: calc(100vh - 140px); /* Strictly constrain height to prevent page scroll */
+  padding: 0 !important;
+  background-color: #fff;
+  overflow: hidden;
 }
 
 .sidebar {
-  flex: 0 0 300px; /* Fixed width */
+  flex: 0 0 320px;
+  width: 320px;
   padding: 1.5rem;
-  background-color: #fff;
-  height: fit-content;
+  background-color: var(--color-bg);
+  border-right: 3px solid var(--color-border);
+  height: 100%; /* Fill container completely */
   position: sticky;
-  top: 110px; /* Below navbar */
+  top: 110px;
+  transition: flex 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), width 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), padding 0.4s ease;
+  overflow-y: auto; /* Allow sidebar to scroll if many topics */
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  flex: 0 0 80px;
+  width: 80px;
+  padding: 1.5rem 0.5rem;
+  align-items: center;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-header {
+  justify-content: center;
+}
+
+.toggle-sidebar-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all var(--transition-speed);
+}
+
+.toggle-sidebar-btn:hover {
+  background-color: var(--color-bg);
+  color: var(--color-primary);
 }
 
 .topic-list {
@@ -59,16 +106,60 @@
   border-radius: 50%;
   border: 2px solid var(--color-border);
   font-weight: 900;
+  flex-shrink: 0;
 }
 
 .topic-btn.active .topic-number {
   color: var(--color-primary);
 }
 
+.topic-list-collapsed {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.topic-btn-mini {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: transparent;
+  transition: all var(--transition-speed);
+  cursor: pointer;
+  color: var(--color-text);
+}
+
+.topic-btn-mini:hover {
+  background-color: #e0f7fa;
+  transform: scale(1.05);
+}
+
+.topic-btn-mini.active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.topic-btn-mini .topic-number {
+  width: auto;
+  height: auto;
+  border: none;
+  background: transparent;
+  color: inherit;
+}
+
 .content-panel {
   flex: 1;
-  padding: 3rem;
+  padding: 3rem 4rem;
   background-color: #fff;
+  overflow-y: auto;
+  height: 100%; /* Constrain to parent height */
 }
 
 /* Markdown Styling */
