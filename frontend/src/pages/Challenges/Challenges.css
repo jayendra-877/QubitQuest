@@ -1,189 +1,85 @@
-/* Gamified Map Wrapper */
-.gamified-map-wrapper {
-  width: 100%;
-  min-height: 100vh;
-}
-
-.level-zone {
-  padding: 8rem 0; /* More padding to take up space */
-  border-bottom: 12px solid rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-}
-
-.level-header {
-  text-align: center;
-  margin-bottom: 6rem;
-  background-color: rgba(255, 255, 255, 0.95);
-  display: inline-block;
-  padding: 1.5rem 4rem;
-  border-radius: 60px;
-  border: 5px solid var(--color-border);
-  box-shadow: 6px 8px 0px var(--color-border);
-  margin-left: 50%;
-  transform: translateX(-50%);
-}
-
-.level-header h2 {
-  color: var(--color-primary);
-  font-size: 3.5rem;
-  font-weight: 900;
-  margin: 0;
-  WebkitTextStroke: 2px var(--color-border);
-}
-
-.level-header p {
-  color: var(--color-text-muted);
-  font-size: 1.2rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  margin-top: 0.5rem;
-}
-
-/* Isometric Path Layout */
-.isometric-path {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
-  padding: 4rem 0;
-  /* Remove gap, use exact margins on nodes for math */
-}
-
-.iso-node {
-  position: relative;
-  width: 100%;
+.challenges-page {
   display: flex;
   justify-content: center;
-  height: 220px; /* Exact height of tile for math */
-  margin-bottom: 100px; /* dy = 220 + 100 = 320px */
-}
-.iso-node:last-child {
-  margin-bottom: 0;
-}
-
-/* Zigzag positioning */
-.iso-left {
-  transform: translateX(-250px);
+  align-items: flex-start;
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+  background-color: var(--color-bg);
 }
 
-.iso-right {
-  transform: translateX(250px);
-}
-
-/* Connective paths between tiles */
-/* dx = 500, dy = -320. length = 594. angle = -32.6deg / -147.4deg */
-.iso-left::after, .iso-right::after {
-  content: '';
-  position: absolute;
-  width: 594px; 
-  height: 40px; 
-  background-color: rgba(255, 255, 255, 0.3);
-  border: 4px solid rgba(0,0,0,0.1);
-  top: 50%;
-  left: 50%;
-  transform-origin: 0 50%;
+.map-wrapper {
+  position: relative;
+  width: 100%;
   border-radius: 20px;
-  z-index: 0;
-  pointer-events: none;
-}
-
-.iso-left::after {
-  transform: translateY(-50%) rotate(-32.6deg);
-}
-
-.iso-right::after {
-  transform: translateY(-50%) rotate(-147.4deg);
-}
-
-.is-start::before {
-  content: 'Start Here';
-  position: absolute;
-  bottom: -40px;
-  background-color: var(--color-secondary);
-  color: white;
-  padding: 0.5rem 1.5rem;
-  border-radius: 20px;
-  font-weight: 900;
-  font-size: 1.3rem;
+  overflow: hidden;
   border: 4px solid var(--color-border);
-  box-shadow: 0 6px 0px var(--color-border);
+  background-color: #000;
+}
+
+.map-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  image-rendering: -webkit-optimize-contrast; /* Safari / older webkit */
+  image-rendering: crisp-edges; /* Modern CSS */
+  image-rendering: pixelated; /* Fallback for some engines to prevent blur */
+}
+
+.quest-node {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%); /* Center exactly on the coordinate */
+  border-radius: 50%;
+  border: 6px solid #fff;
+  background-color: #4ade80; /* Bright Green */
+  color: #064e3b; /* Dark green text */
+  font-weight: 900;
+  font-size: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0px 6px 0px rgba(0,0,0,0.4), 0 0 20px rgba(74, 222, 128, 0.6);
+  transition: all 0.2s ease;
   z-index: 10;
 }
 
-/* Don't draw path connecting downwards if it's the top node (last in DOM) */
-.iso-node:last-child::after {
-  display: none;
+.quest-node:hover {
+  transform: translate(-50%, -55%) scale(1.15);
+  background-color: #22c55e;
+  box-shadow: 0px 8px 0px rgba(0,0,0,0.4), 0 0 25px rgba(34, 197, 94, 0.8);
 }
 
-/* The actual diamond tile */
-.iso-tile {
-  width: 220px;
-  height: 220px;
-  background-color: white;
-  transform: rotateX(60deg) rotateZ(45deg);
-  border-style: solid;
-  border-width: 0 20px 20px 0; /* Massive 3D thickness */
-  border-radius: 24px;
-  position: relative;
-  z-index: 2;
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: inset 0 0 40px rgba(255,255,255,0.7);
-}
-
-.iso-tile:hover {
-  transform: rotateX(60deg) rotateZ(45deg) scale(1.05) translateY(-10px);
-}
-
-/* The content standing up on the tile */
-.iso-content {
-  transform: rotateZ(-45deg) rotateX(-60deg);
-  position: absolute;
-  top: -120px;
-  left: -20px;
-  width: 260px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  pointer-events: none;
-}
-
-/* Enlarge Castle slightly */
-.iso-content .castle-wrapper {
-  transform: scale(1.5);
-  margin-bottom: 2.5rem; /* Push label away from castle base */
-  transition: transform 0.2s;
-}
-.iso-content .castle-wrapper:hover {
-  transform: scale(1.6);
-}
-
-.castle-label {
-  background-color: white;
-  border: 4px solid var(--color-border);
-  border-radius: 16px;
-  padding: 0.8rem 1.2rem;
-  text-align: center;
-  box-shadow: 4px 6px 0px var(--color-border);
-  pointer-events: auto;
-  min-width: 180px;
-}
-
-.castle-label strong {
-  display: block;
-  font-size: 1.3rem;
-  color: var(--color-text);
-  line-height: 1.4;
-  white-space: pre-wrap; /* allow wrapping */
-}
-
-.chal-type {
-  display: inline-block;
-  font-size: 0.8rem;
-  font-weight: 900;
+.quest-node.completed {
+  background-color: #10b981;
   color: white;
-  background-color: var(--color-secondary);
-  padding: 0.3rem 0.6rem;
-  border-radius: 8px;
-  margin-bottom: 0.5rem;
+}
+
+.quest-node.completed:hover {
+  background-color: #059669;
+}
+
+.quest-node.locked {
+  background-color: #bbf7d0;
+  border-color: #86efac;
+  color: #166534;
+  cursor: not-allowed;
+  opacity: 0.95;
+  box-shadow: 0px 4px 0px rgba(0,0,0,0.2);
+}
+
+.quest-node.locked:hover {
+  transform: translate(-50%, -50%); /* No hover pop effect for locked quests */
+}
+
+@media (max-width: 600px) {
+  .challenges-page {
+    padding: 0;
+  }
+  .map-wrapper {
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+  }
 }
