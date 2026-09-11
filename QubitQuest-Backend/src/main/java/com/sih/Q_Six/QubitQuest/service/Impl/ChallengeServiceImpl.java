@@ -3,6 +3,7 @@ package com.sih.Q_Six.QubitQuest.service.Impl;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sih.Q_Six.QubitQuest.dtos.*;
+import com.sih.Q_Six.QubitQuest.dtos.ai.HelpResponseDto;
 import com.sih.Q_Six.QubitQuest.entity.Challenge;
 import com.sih.Q_Six.QubitQuest.entity.ChallengeAttempt;
 import com.sih.Q_Six.QubitQuest.entity.ChallengeProgress;
@@ -17,6 +18,7 @@ import com.sih.Q_Six.QubitQuest.repository.MissionRepository;
 import com.sih.Q_Six.QubitQuest.service.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 
@@ -38,6 +40,10 @@ public class ChallengeServiceImpl implements ChallengeService {
     private final ExecutionClient executionClient;
     private final CorrectnessChecker correctnessChecker;
     private final ObjectMapper objectMapper;
+
+    private final ChatClient chatClient;
+
+
     @Override
     public List<MissionWIthChallengesDto> getAllMissionsWithChallenges(Long userId) {
         return missionRepository.findAllByOrderByOrderNumberAsc().stream()
@@ -173,6 +179,53 @@ public class ChallengeServiceImpl implements ChallengeService {
                 .build());
 
         return new SubmitResponseDto(correct, pointsAwarded, feedback, execResult, justCompleted);
+    }
+
+    @Override
+    public HelpResponseDto askForHelp(Long challengeId, String userMessage) {
+        Challenge challenge = challengeRepository.findById(challengeId)
+                .orElseThrow(() -> new ChallengeNotFoundException("Challenge not found"));
+
+        // Build context data from the challenge[cite: 2]
+        StringBuilder challengeData = new StringBuilder();
+        challengeData.append(String.format("Title: %s\nStory: %s\nType: %s\nDifficulty: %s\n",
+                challenge.getTitle(), challenge.getStory(), challenge.getChallengeType(), challenge.getDifficulty()));
+
+        if (challenge.getChallengeType() == ChallengeType.PREDICT) {
+            challengeData.append(String.format("Question: %s\nOptions: %s\nCorrect Answer: %s\n",
+                    challenge.getPredictorQuestion(),
+                    challenge.getPredictorOptionsJson(),
+                    challenge.getCorrectPrediction()));
+        } else {
+            String circuit = challenge.getChallengeType() == ChallengeType.DEBUG
+                    ? challenge.getBrokenCircuitJson()
+                    : challenge.getDefaultCircuitJson();
+            challengeData.append(String.format("Circuit Given to User: %s\nTarget Outcome Expected: %s\n",
+                    circuit,
+                    challenge.getTargetOutcomeJson()));
+        }
+
+        // Construct the System Prompt
+        String systemPrompt = """
+                You are an expert Quantum Computing AI Tutor helping a user solve a challenge on a learning platform.
+                Below is the exact data for the current challenge the user is facing.
+                
+                RULES:
+                1. Guide the user step-by-step through the quantum theory required.
+                2. DO NOT give them the direct final answer or the exact corrected circuit immediately.
+                3. ONLY reveal the correct output/answer if the user explicitly asks for the correct output or final answer.
+                
+                CHALLENGE DATA:
+                """ + challengeData.toString();
+
+        // Call the Spring AI Model
+        String aiResponse = chatClient.prompt()
+                .system(systemPrompt)
+                .user(userMessage)
+                .call()
+                .content();
+
+        return new HelpResponseDto(aiResponse);
     }
 
     // ---------- helpers ----------

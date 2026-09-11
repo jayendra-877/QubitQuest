@@ -1,6 +1,8 @@
 package com.sih.Q_Six.QubitQuest.controller;
 
 import com.sih.Q_Six.QubitQuest.dtos.*;
+import com.sih.Q_Six.QubitQuest.dtos.ai.HelpRequestDto;
+import com.sih.Q_Six.QubitQuest.dtos.ai.HelpResponseDto;
 import com.sih.Q_Six.QubitQuest.service.ChallengeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -50,5 +52,13 @@ public class ChallengeController {
     public SubmitResponseDto submit(@RequestParam Long userId, @PathVariable Long id,
                                     @Valid @RequestBody SubmitRequestDto req) {
         return challengeService.submit(userId, id, req.circuitJson());
+    }
+
+    // POST /challenges/{id}/help
+    // User asks the AI for help on a specific challenge
+    @PostMapping("/{id}/help")
+    public HelpResponseDto askForHelp(@PathVariable Long id,
+                                      @Valid @RequestBody HelpRequestDto req) {
+        return challengeService.askForHelp(id, req.userMessage());
     }
 }
