@@ -65,11 +65,11 @@ public class ChallengeServiceImpl implements ChallengeService {
                 challenge.getId(), challenge.getTitle(), challenge.getStory(),
                 challenge.getChallengeType(), challenge.getConceptTag(), challenge.getDifficulty(),
                 startingCircuit,
+                challenge.getPredictorCircuitJson(),   // NEW — passed through
                 challenge.getPredictorQuestion(), options,
                 challenge.getAllowCircuitEdit(),
                 progress.getAttempts(), progress.getStatus()
         );
-
     }
 
     @Override

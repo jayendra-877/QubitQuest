@@ -46,6 +46,9 @@ public class Challenge {
     @Column(name = "default_circuit_json", columnDefinition = "TEXT")
     private String defaultCircuitJson;
 
+    @Column(name = "predictor_circuit_json",columnDefinition = "TEXT")
+    private String predictorCircuitJson;
+
     // Used when challengeType == DEBUG (intentionally broken circuit to fix)
     @Column(name = "broken_circuit_json", columnDefinition = "TEXT")
     private String brokenCircuitJson;

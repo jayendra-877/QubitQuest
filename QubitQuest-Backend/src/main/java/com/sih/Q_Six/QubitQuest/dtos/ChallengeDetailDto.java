@@ -13,11 +13,11 @@ public record ChallengeDetailDto(
         ChallengeType challengeType,
         String conceptTag,
         Difficulty difficulty,
-        String startingCircuitJson,
+        String startingCircuitJson,      // used by BUILD/DEBUG (editable)
+        String predictorCircuitJson,     // NEW — used by PREDICT_ONLY (read-only, shown alongside question)
         String predictorQuestion,
         List<String> predictorOptions,
         boolean allowCircuitEdit,
         int attempts,
         ProgressStatus status
-) {
-}
+) {}
