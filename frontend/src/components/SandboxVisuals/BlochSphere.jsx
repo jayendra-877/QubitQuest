@@ -1,7 +1,7 @@
 import React from 'react';
 import Plot from 'react-plotly.js';
 
-// Vibrant colors for each qubit vector
+// Vibrant colors for each qubit vector. This is being done to commit.
 const QUBIT_COLORS = [
   '#e74c3c', // Red
   '#3498db', // Blue
@@ -20,8 +20,8 @@ const BlochSphere = ({ data }) => {
 
   // Generate wireframe rings for the sphere
   const resolution = 50;
-  const t = Array.from({length: resolution}, (_, i) => (i * Math.PI * 2) / (resolution - 1));
-  
+  const t = Array.from({ length: resolution }, (_, i) => (i * Math.PI * 2) / (resolution - 1));
+
   // Equator (XY plane)
   plotData.push({
     type: 'scatter3d', mode: 'lines',
@@ -51,7 +51,7 @@ const BlochSphere = ({ data }) => {
   Object.keys(data.coordinates).forEach((key, idx) => {
     const coord = data.coordinates[key];
     const color = QUBIT_COLORS[idx % QUBIT_COLORS.length];
-    
+
     // Draw bold line from origin to (x, y, z)
     plotData.push({
       type: 'scatter3d',
