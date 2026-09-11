@@ -1,5 +1,7 @@
 package com.sih.Q_Six.QubitQuest.controller;
 
+import com.sih.Q_Six.QubitQuest.dtos.CircuitDescriptionChangeDto;
+import com.sih.Q_Six.QubitQuest.dtos.CircuitNameChangeDto;
 import com.sih.Q_Six.QubitQuest.dtos.SaveCircuitRequestDto;
 import com.sih.Q_Six.QubitQuest.dtos.SavedCircuitResponseDto;
 import com.sih.Q_Six.QubitQuest.service.SavedCircuitService;
@@ -35,4 +37,27 @@ public class SavedCircuitController {
     ) {
         return savedCircuitService.getSavedCircuit(id);
     }
+
+    @PatchMapping("/{id}/name")
+    public SavedCircuitResponseDto changeName(
+            @PathVariable Long id,
+            @RequestBody CircuitNameChangeDto circuitNameChangeDto
+            ) {
+        return savedCircuitService.changeCircuitName(id,circuitNameChangeDto);
+    }
+
+    @PatchMapping("/{id}/description")
+    public SavedCircuitResponseDto changeDescription(
+            @PathVariable Long id,
+            @RequestBody CircuitDescriptionChangeDto circuitDescriptionChangeDto
+            ) {
+        return savedCircuitService.changeCircuitDescription(id,circuitDescriptionChangeDto);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteCircuit(@PathVariable Long id){
+        savedCircuitService.deleteCircuitById(id);
+    }
+
+
 }

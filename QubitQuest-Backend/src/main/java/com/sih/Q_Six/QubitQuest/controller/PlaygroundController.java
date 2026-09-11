@@ -1,6 +1,8 @@
 package com.sih.Q_Six.QubitQuest.controller;
 
 import com.sih.Q_Six.QubitQuest.dtos.*;
+import com.sih.Q_Six.QubitQuest.dtos.playgroundAi.PlaygroundAiRequestDto;
+import com.sih.Q_Six.QubitQuest.dtos.playgroundAi.PlaygroundAiResponseDto;
 import com.sih.Q_Six.QubitQuest.service.PlaygroundService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -46,6 +48,18 @@ public class PlaygroundController {
 
         return playgroundService.getBlochSphere(
                 request.getCircuitJson()
+        );
+    }
+
+    // POST /playground/ask-ai
+    @PostMapping("/ask-ai")
+    public PlaygroundAiResponseDto askAi(
+            @Valid @RequestBody PlaygroundAiRequestDto request
+    ) {
+        return playgroundService.askAi(
+                request.getCircuitJson(),
+                request.getDescription(),
+                request.getMessage()
         );
     }
 }

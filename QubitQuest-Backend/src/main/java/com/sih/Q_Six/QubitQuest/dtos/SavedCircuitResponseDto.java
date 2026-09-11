@@ -14,6 +14,7 @@ public class SavedCircuitResponseDto {
     private Long id;
     private String name;
     private String circuitJson;
+    private String description;
     private Instant createdAt;
     private Instant updatedAt;
 }
