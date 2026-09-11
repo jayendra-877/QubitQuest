@@ -9,7 +9,7 @@ const Footer = () => {
         {/* Left Side: Brand and Socials */}
         <div style={{ flex: 1, minWidth: '300px' }}>
           <div className="footer-brand">
-            <span className="logo-icon small">Q</span>
+            <img src="/cat_icon_logo.svg" className="logo-icon small" alt="QubitQuest Logo" />
             <span>QubitQuest</span>
           </div>
           <p style={{ color: 'var(--color-text)', fontWeight: '600', marginTop: '1rem', marginBottom: '2rem' }}>

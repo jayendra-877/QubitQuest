@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import Layout from './components/layout/Layout'
 import ProtectedRoute from './components/layout/ProtectedRoute'
 import Landing from './pages/Landing/Landing'
@@ -9,9 +10,23 @@ import Challenges from './pages/Challenges/Challenges'
 import ChallengeDetail from './pages/Challenges/ChallengeDetail'
 import Sandbox from './pages/Sandbox/Sandbox'
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    if (pathname !== '/challenges') {
+      window.scrollTo(0, 0);
+    }
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
-    <Routes>
+    <>
+      <ScrollToTop />
+      <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Landing />} />
         <Route path="login" element={<Login />} />
@@ -24,6 +39,7 @@ function App() {
         <Route path="sandbox" element={<Sandbox />} />
       </Route>
     </Routes>
+    </>
   )
 }
 

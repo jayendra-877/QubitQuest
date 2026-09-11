@@ -9,7 +9,7 @@ import './Challenges.css';
 // Stage 2 (Middle): 3 levels
 // Stage 3 (Top): 3 levels
 const QUESTS = [
-  { id: 'c1', stage: 1, title: 'Quest 1', completed: true,  top: '91.8%', left: '76.6%' },
+  { id: 'c1', stage: 1, title: 'Quest 1', completed: true, top: '91.8%', left: '76.6%' },
   { id: 'c2', stage: 1, title: 'Quest 2', completed: false, top: '79.5%', left: '88.0%' },
   { id: 'c3', stage: 1, title: 'Quest 3', completed: false, top: '77.0%', left: '54.0%' },
   { id: 'c4', stage: 1, title: 'Quest 4', completed: false, top: '69.0%', left: '29.6%' },
@@ -20,7 +20,7 @@ const QUESTS = [
 
   { id: 'c8', stage: 3, title: 'Quest 8', completed: false, top: '22.4%', left: '87.1%' },
   { id: 'c9', stage: 3, title: 'Quest 9', completed: false, top: '18.5%', left: '50.5%' },
-  { id: 'c10', stage: 3,title: 'Quest 10',completed: false, top: '12.7%', left: '29.6%' }
+  { id: 'c10', stage: 3, title: 'Quest 10', completed: false, top: '12.7%', left: '29.6%' }
 ];
 
 const API_URL = 'http://localhost:8080/api/v1';
@@ -88,14 +88,14 @@ const Challenges = () => {
     <div className="challenges-page">
       <div className="map-wrapper">
         <img src="/pathway_svg_1.svg" alt="Quest Map" className="map-image" />
-        
+
         {challengesList.map((chal, index) => {
           // Map backend challenge to the hardcoded coordinates from QUESTS based on index
           const pos = QUESTS[index] || { top: '50%', left: '50%' };
           const isCompleted = chal.userStatus === 'COMPLETED';
 
           return (
-            <button 
+            <button
               key={chal.id}
               id={`challenge-node-${chal.id}`}
               className={`quest-node ${isCompleted ? 'completed' : 'locked'}`}

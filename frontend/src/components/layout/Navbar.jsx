@@ -27,8 +27,8 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
-          <span className="logo-icon">Q</span>
-          <span className="logo-text">QuantumEdu</span>
+          <img src="/cat_icon_logo.svg" className="logo-icon" alt="QubitQuest Logo" />
+          <span className="logo-text">QubitQuest</span>
         </Link>
         
         <div className="navbar-links">

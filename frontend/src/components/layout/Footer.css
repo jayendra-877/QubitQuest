@@ -25,8 +25,7 @@
 .logo-icon.small {
   width: 36px;
   height: 36px;
-  font-size: 1.2rem;
-  box-shadow: 0px 3px 0px var(--color-primary-dark), 0px 3px 0px 3px var(--color-border);
+  object-fit: contain;
 }
 
 .footer-contact h3 {
