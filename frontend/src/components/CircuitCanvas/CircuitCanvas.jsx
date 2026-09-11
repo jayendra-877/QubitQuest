@@ -8,7 +8,7 @@ const GATE_COLORS = {
   'CZ': '#8e44ad' // Purple
 };
 
-const NUM_STEPS = 5;
+const NUM_STEPS = 15;
 
 const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false, numQubits = 3 }) => {
   
