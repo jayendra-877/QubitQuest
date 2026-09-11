@@ -1,12 +1,14 @@
 package com.sih.Q_Six.QubitQuest.service.Impl;
 
 import com.sih.Q_Six.QubitQuest.dtos.*;
+import com.sih.Q_Six.QubitQuest.dtos.playgroundAi.PlaygroundAiResponseDto;
 import com.sih.Q_Six.QubitQuest.exceptions.ExecutionServiceException;
 import com.sih.Q_Six.QubitQuest.service.CircuitMapper;
 import com.sih.Q_Six.QubitQuest.service.CircuitValidator;
 import com.sih.Q_Six.QubitQuest.service.ExecutionClient;
 import com.sih.Q_Six.QubitQuest.service.PlaygroundService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,6 +20,38 @@ public class PlaygroundServiceImpl implements PlaygroundService {
     private final CircuitMapper circuitMapper;
 
     private final ExecutionClient executionClient;
+
+    private final ChatClient chatClient;
+
+
+
+    @Override
+    public PlaygroundAiResponseDto askAi(String circuitJson, String description, String message) {
+
+        String systemPrompt = String.format("""
+                You are an expert Quantum Computing AI Assistant operating within a circuit playground.
+                The user has provided a description of what they are trying to achieve, 
+                their current quantum circuit JSON, and a specific question.
+                
+                RULES:
+                1. Analyze their circuit and address their specific question directly in the 'message' field.
+                2. Explain the underlying quantum mechanics or concepts causing their issue.
+                3. If the user explicitly asks for the correct circuit, provide the corrected JSON in the 'circuitJson' field.
+                4. If no corrected circuit is needed or asked for, leave the 'circuitJson' field empty or null.
+                
+                USER'S INTENDED GOAL: %s
+                CURRENT CIRCUIT JSON: %s
+                """, description, circuitJson);
+
+        // Spring AI will automatically parse the LLM's JSON response into your DTO
+        PlaygroundAiResponseDto aiResponse = chatClient.prompt()
+                .system(systemPrompt)
+                .user(message)
+                .call()
+                .entity(PlaygroundAiResponseDto.class);
+
+        return aiResponse;
+    }
 
 
     @Override

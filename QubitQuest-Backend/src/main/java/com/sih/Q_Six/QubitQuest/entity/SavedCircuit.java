@@ -32,6 +32,9 @@ public class SavedCircuit {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String circuitJson;
 
+
+    private String description;
+
     @CreationTimestamp
     private Instant createdAt;
 

@@ -15,4 +15,6 @@ public class SaveCircuitRequestDto {
 
     @NotBlank(message = "Circuit JSON is required")
     private String circuitJson;
+
+    private String description;
 }

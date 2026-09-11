@@ -1,5 +1,7 @@
 package com.sih.Q_Six.QubitQuest.service.Impl;
 
+import com.sih.Q_Six.QubitQuest.dtos.CircuitDescriptionChangeDto;
+import com.sih.Q_Six.QubitQuest.dtos.CircuitNameChangeDto;
 import com.sih.Q_Six.QubitQuest.dtos.SaveCircuitRequestDto;
 import com.sih.Q_Six.QubitQuest.dtos.SavedCircuitResponseDto;
 import com.sih.Q_Six.QubitQuest.entity.SavedCircuit;
@@ -38,6 +40,7 @@ public class SavedCircuitServiceImpl implements SavedCircuitService {
         savedCircuit.setUser(user);
         savedCircuit.setName(request.getName());
         savedCircuit.setCircuitJson(request.getCircuitJson());
+        savedCircuit.setDescription(request.getDescription());
 
         SavedCircuit saved = savedCircuitRepository.save(savedCircuit);
 
@@ -78,12 +81,47 @@ public class SavedCircuitServiceImpl implements SavedCircuitService {
         return toDto(circuit);
     }
 
+    @Override
+    public SavedCircuitResponseDto changeCircuitName(Long id, CircuitNameChangeDto circuitNameChangeDto) {
+        SavedCircuit savedCircuit = savedCircuitRepository.findById(id).orElseThrow(
+                ()-> new ResourceNotFoundException("Circuit not found with id: "+id)
+        );
+
+        savedCircuit.setName(circuitNameChangeDto.newName());
+        savedCircuitRepository.save(savedCircuit);
+
+        return toDto(savedCircuit);
+    }
+
+    @Override
+    public SavedCircuitResponseDto changeCircuitDescription(Long id, CircuitDescriptionChangeDto circuitDescriptionChangeDto) {
+        SavedCircuit savedCircuit = savedCircuitRepository.findById(id).orElseThrow(
+                ()-> new ResourceNotFoundException("Circuit not found with id: "+id)
+        );
+
+        savedCircuit.setDescription(circuitDescriptionChangeDto.newDescription());
+        savedCircuitRepository.save(savedCircuit);
+
+        return toDto(savedCircuit);
+    }
+
+    @Override
+    public void deleteCircuitById(Long id) {
+        SavedCircuit savedCircuit = savedCircuitRepository.findById(id).orElseThrow(
+                ()-> new ResourceNotFoundException("Circuit not found with id: "+id)
+        );
+
+        savedCircuitRepository.deleteById(id);
+    }
+
+
     private SavedCircuitResponseDto toDto(SavedCircuit circuit) {
 
         return new SavedCircuitResponseDto(
                 circuit.getId(),
                 circuit.getName(),
                 circuit.getCircuitJson(),
+                circuit.getDescription(),
                 circuit.getCreatedAt(),
                 circuit.getUpdatedAt()
         );
