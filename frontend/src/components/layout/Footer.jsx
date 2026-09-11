@@ -10,7 +10,7 @@ const Footer = () => {
         <div style={{ flex: 1, minWidth: '300px' }}>
           <div className="footer-brand">
             <span className="logo-icon small">Q</span>
-            <span>QuantumEdu</span>
+            <span>QubitQuest</span>
           </div>
           <p style={{ color: 'var(--color-text)', fontWeight: '600', marginTop: '1rem', marginBottom: '2rem' }}>
             Leveling up the world's quantum computing skills.
@@ -22,33 +22,40 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Right Side: Contact Form */}
-        <div style={{ flex: 1, minWidth: '300px' }} className="game-card contact-card">
-          <h3 style={{ marginBottom: '1rem', fontWeight: '900', fontSize: '1.5rem', color: 'var(--color-primary)' }}>Send us a message</h3>
-          <form style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }} onSubmit={(e) => e.preventDefault()}>
-            <input 
-              type="text" 
-              placeholder="Your Name" 
-              className="gamified-input"
-            />
-            <input 
-              type="email" 
-              placeholder="Your Email" 
-              className="gamified-input"
-            />
-            <textarea 
-              placeholder="How can we help?" 
-              rows="3" 
-              className="gamified-input"
-              style={{ resize: 'vertical' }}
-            ></textarea>
-            <button className="btn-primary" style={{ alignSelf: 'flex-start', marginTop: '0.5rem' }}>Send</button>
-          </form>
+        {/* Right Side: Team Members */}
+        <div style={{ flex: 2, minWidth: '300px' }}>
+          <h3 style={{ marginBottom: '1.5rem', fontWeight: '900', fontSize: '1.5rem', color: 'var(--color-primary)' }}>Our Team</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Krish Mishra</strong><br/>
+              <a href="mailto:24bcs130@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24bcs130@ietdavv.edu.in</a>
+            </div>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Jayendra Vishwakarma</strong><br/>
+              <a href="mailto:24bcs126@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24bcs126@ietdavv.edu.in</a>
+            </div>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Shourya Malviya</strong><br/>
+              <a href="mailto:24btc063@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24btc063@ietdavv.edu.in</a>
+            </div>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Dhruv Chourey</strong><br/>
+              <a href="mailto:24bit025@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24bit025@ietdavv.edu.in</a>
+            </div>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Mahak Bansal</strong><br/>
+              <a href="mailto:24bcs134@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24bcs134@ietdavv.edu.in</a>
+            </div>
+            <div className="team-member">
+              <strong style={{ fontSize: '1.1rem' }}>Ansh Zamde</strong><br/>
+              <a href="mailto:24bcs107@ietdavv.edu.in" style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}>24bcs107@ietdavv.edu.in</a>
+            </div>
+          </div>
         </div>
 
       </div>
       <div className="footer-bottom">
-        <p>&copy; 2026 QuantumEdu. All rights reserved.</p>
+        <p>&copy; 2026 QubitQuest. All rights reserved.</p>
       </div>
     </footer>
   );
