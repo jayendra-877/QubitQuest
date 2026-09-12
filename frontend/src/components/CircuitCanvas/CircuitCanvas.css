@@ -1,0 +1,160 @@
+.circuit-canvas-container {
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  align-items: stretch;
+  height: 100%;
+  min-height: 0;
+  max-height: 450px;
+}
+
+.gate-palette {
+  padding: 1.5rem;
+  background-color: #fff;
+  min-width: 150px;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.gate-palette h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+  font-weight: 900;
+  text-align: center;
+}
+
+.palette-gates {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.palette-gate {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: 900;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 3px solid var(--color-border);
+  box-shadow: 0 4px 0px rgba(0,0,0,0.2);
+  cursor: grab;
+  user-select: none;
+}
+
+.palette-gate:active {
+  cursor: grabbing;
+}
+
+.canvas-grid {
+  flex: 1;
+  background-color: #f8f9fa;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-x: auto;
+  overflow-y: auto;
+  border-radius: 8px;
+}
+
+.canvas-row {
+  display: flex;
+  align-items: center;
+  height: 80px;
+}
+
+.qubit-label {
+  font-weight: 900;
+  color: var(--color-text-muted);
+  width: 60px;
+  min-width: 60px;
+  flex-shrink: 0;
+  font-size: 1.2rem;
+}
+
+.canvas-cell {
+  width: 80px;
+  min-width: 80px;
+  flex-shrink: 0;
+  height: 80px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wire-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background-color: var(--color-text-muted);
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.canvas-gate {
+  width: 50px;
+  height: 50px;
+  z-index: 2;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: 900;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  border: 3px solid var(--color-border);
+  box-shadow: 0 3px 0px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.canvas-gate:hover {
+  transform: scale(1.1);
+}
+
+/* CNOT Target Line */
+.cnot-line {
+  position: absolute;
+  left: 50%;
+  width: 4px;
+  background-color: var(--color-border);
+  z-index: 1;
+  margin-left: -2px;
+}
+
+.cnot-line.down {
+  top: 50%;
+  height: 90px; /* reaches down to next row */
+}
+
+.cnot-line.up {
+  bottom: 50%;
+  height: 90px; /* reaches up to prev row */
+}
+
+.cnot-target-dot {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background-color: var(--color-border);
+  border-radius: 50%;
+  left: -6px;
+}
+
+.cnot-line.down .cnot-target-dot {
+  bottom: 0;
+}
+
+.cnot-line.up .cnot-target-dot {
+  top: 0;
+}

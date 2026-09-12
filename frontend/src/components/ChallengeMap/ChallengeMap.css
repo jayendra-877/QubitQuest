@@ -1,0 +1,101 @@
+.challenge-map-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  border: 6px solid var(--color-border);
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 8px 12px 0px var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.challenge-map {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.map-ocean {
+  fill: #e0f7fa; /* Light pastel blue ocean */
+}
+
+.map-cloud {
+  fill: #ffffff;
+  opacity: 0.8;
+}
+
+/* Zone Base Styles */
+.map-zone {
+  cursor: pointer;
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-origin: center;
+}
+
+.map-zone path {
+  stroke: var(--color-border);
+  stroke-width: 8px;
+  transition: all 0.3s ease;
+  filter: drop-shadow(4px 6px 0px rgba(0,0,0,0.2));
+}
+
+.zone-label {
+  font-family: var(--font-main);
+  font-weight: 900;
+  font-size: 24px;
+  fill: white;
+  text-anchor: middle;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--color-border);
+  stroke-width: 6px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Specific Zones Hover Effects */
+
+/* Basics Zone */
+.zone-basics path {
+  fill: #58cc02; /* Duolingo Green */
+}
+.zone-basics:hover path {
+  fill: #46a302;
+}
+
+/* Superposition Zone */
+.zone-superposition path {
+  fill: #ff4b4b; /* Vibrant Red/Pink */
+}
+.zone-superposition:hover path {
+  fill: #d93838;
+}
+
+/* Entanglement Zone */
+.zone-entanglement path {
+  fill: #ffc800; /* Vibrant Yellow */
+}
+.zone-entanglement:hover path {
+  fill: #e5b400;
+}
+
+/* Algorithms Zone */
+.zone-algorithms path {
+  fill: #1cb0f6; /* Bright Blue */
+}
+.zone-algorithms:hover path {
+  fill: #1480b3;
+}
+
+/* Transform on Hover */
+.map-zone:hover {
+  transform: scale(1.05);
+}
+
+.map-zone:hover path {
+  stroke-width: 10px;
+  filter: drop-shadow(6px 10px 0px rgba(0,0,0,0.3));
+}
+
+.map-zone:active {
+  transform: scale(0.95);
+}

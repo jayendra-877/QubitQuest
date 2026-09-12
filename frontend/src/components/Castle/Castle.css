@@ -1,0 +1,45 @@
+.castle-wrapper {
+  position: relative;
+  display: inline-block;
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.castle-wrapper:hover {
+  transform: scale(1.1);
+}
+
+.castle-intact {
+  display: block;
+}
+
+.castle-ruins {
+  display: none;
+}
+
+.castle-wrapper.destroyed .castle-intact {
+  display: none;
+}
+
+.castle-wrapper.destroyed .castle-ruins {
+  display: block;
+}
+
+@keyframes flicker {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.fire-flicker {
+  animation: flicker 0.5s infinite alternate;
+}
+
+@keyframes rise {
+  0% { transform: translateY(0) scale(1); opacity: 0.8; }
+  100% { transform: translateY(-20px) scale(1.5); opacity: 0; }
+}
+
+.smoke-rise {
+  animation: rise 2s infinite;
+}
