@@ -1,71 +1,119 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import CircuitCanvas from '../../components/CircuitCanvas/CircuitCanvas';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
+import 'katex/dist/katex.min.css';
 
 const API_URL = 'http://localhost:8080/api/v1';
 
 const ChallengeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  
+
   const [challenge, setChallenge] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+
   // State for user input
   const [prediction, setPrediction] = useState('');
   const [circuit, setCircuit] = useState([]);
   const [fullCircuit, setFullCircuit] = useState(null);
-  
+
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
 
   const [submissionResult, setSubmissionResult] = useState(null);
 
+  const hasSubmitted = !!(submissionResult || errorMsg || successMsg);
+
+  // AI Chat state
+  const [showAI, setShowAI] = useState(false);
+  const [chatMessages, setChatMessages] = useState([
+    { role: 'ai', message: "Hi! Need a hint or an explanation for this challenge?" }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const [isChatLoading, setIsChatLoading] = useState(false);
+
+  const handleSendChatMessage = async () => {
+    if (!chatInput.trim() || isChatLoading) return;
+
+    const userMsg = chatInput.trim();
+    setChatInput('');
+    setChatMessages(prev => [...prev, { role: 'user', message: userMsg }]);
+    setIsChatLoading(true);
+
+    try {
+      const payload = {
+        userMessage: userMsg
+      };
+
+      const res = await fetch(`http://localhost:8080/api/v1/challenges/${id}/help`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+
+      if (data && data.data && data.data.aiResponse) {
+        setChatMessages(prev => [...prev, { role: 'ai', message: data.data.aiResponse }]);
+      } else {
+        setChatMessages(prev => [...prev, { role: 'ai', message: "Sorry, I couldn't process that request." }]);
+      }
+    } catch (err) {
+      console.error(err);
+      setChatMessages(prev => [...prev, { role: 'ai', message: "An error occurred while connecting to QuantaAI." }]);
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchChallenge = async () => {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${API_URL}/challenges/${id}?userId=1`, {
-          headers: { 
+          headers: {
             Authorization: token ? `Bearer ${token}` : '',
             'Content-Type': 'application/json'
           }
         });
-        
+
         if (!res.ok) throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
         const json = await res.json();
-        
+
         if (!json.data) {
-           throw new Error(`Challenge ID ${id} not found in the fetched data.`);
+          throw new Error(`Challenge ID ${id} not found in the fetched data.`);
         }
-        
+
         const foundChallenge = json.data;
         setChallenge(foundChallenge);
-        
+
         // Handle initial circuit parsing
         const cTypeStr = (foundChallenge.challengeType || foundChallenge.type || '').toUpperCase();
         const isPredict = cTypeStr === 'PREDICT';
         let initialCirc = isPredict ? foundChallenge.predictorCircuitJson : foundChallenge.startingCircuitJson;
-        
+
         if (typeof initialCirc === 'string') {
-          try { initialCirc = JSON.parse(initialCirc); } catch (e) {}
+          try { initialCirc = JSON.parse(initialCirc); } catch (e) { }
         }
-        
+
         const full = initialCirc || { qubits: 3, gates: [] };
         setFullCircuit(full);
-        
+
         // Convert backend gates to Canvas format
         const rawGates = full.gates || [];
         const canvasGates = rawGates.map((g, index) => {
           // If it already has step, it's already in canvas format (from old mock)
           if (g.step !== undefined) return g;
-          
+
           let qubit = g.target;
           if (g.control !== undefined) {
             qubit = g.control; // Place the main block on the control wire
           }
-          
+
           return {
             type: g.type,
             qubit: qubit,
@@ -73,7 +121,7 @@ const ChallengeDetail = () => {
             target: g.control !== undefined ? g.target : undefined
           };
         });
-        
+
         console.log("Setting circuit gates to:", canvasGates);
         setCircuit(canvasGates);
       } catch (err) {
@@ -94,14 +142,14 @@ const ChallengeDetail = () => {
     try {
       const token = localStorage.getItem('token');
       const cType = (challenge.challengeType || challenge.type || '').toLowerCase();
-      
+
       let url = '';
       let payload = {};
 
       if (cType === 'predict') {
         url = `http://localhost:8080/challenges/${id}/predict?userId=1`;
         if (API_URL.includes('/api/v1')) {
-           url = `${API_URL}/challenges/${id}/predict?userId=1`;
+          url = `${API_URL}/challenges/${id}/predict?userId=1`;
         }
         payload = {
           predictedAnswer: prediction
@@ -115,29 +163,29 @@ const ChallengeDetail = () => {
           }
           return { type: g.type, target: g.qubit, params: [] };
         });
-        
+
         payload = {
-          userId: 1, 
+          userId: 1,
           circuitJson: JSON.stringify({ ...(fullCircuit || {}), gates: backendGates })
         };
       }
-      
+
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           Authorization: token ? `Bearer ${token}` : ''
         },
         body: JSON.stringify(payload)
       });
-      
+
       const result = await res.json();
-      
+
       if (res.ok && result.data) {
         if (cType === 'predict') {
           if (result.data.correct) {
             setSuccessMsg(result.data.feedback || 'Successfully completed!');
-            setTimeout(() => navigate('/challenges', { state: { returnFrom: id } }), 2500);
+            // Removed automatic redirect so user can chat with AI
           } else {
             setErrorMsg(result.data.feedback || 'Incorrect prediction. Try again.');
           }
@@ -147,10 +195,10 @@ const ChallengeDetail = () => {
             setSubmissionResult(result.data.result);
           }
           if (result.data.correct) {
-             setSuccessMsg(result.data.feedbackMessage || `Correct! You earned ${result.data.pointsAwarded || 0} points!`);
-             setTimeout(() => navigate('/challenges', { state: { returnFrom: id } }), 4000); // 4 seconds so they can see the chart
+            setSuccessMsg(result.data.feedbackMessage || `Correct! You earned ${result.data.pointsAwarded || 0} points!`);
+            // Removed automatic redirect so user can chat with AI
           } else {
-             setErrorMsg(result.data.feedbackMessage || 'Incorrect submission.');
+            setErrorMsg(result.data.feedbackMessage || 'Incorrect submission.');
           }
         }
       } else {
@@ -180,7 +228,7 @@ const ChallengeDetail = () => {
 
   return (
     <div className="container" style={{ padding: '4rem 2rem' }}>
-      
+
       {/* Header */}
       <div className="game-card" style={{ padding: '2rem', marginBottom: '2rem', backgroundColor: '#fff' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -198,52 +246,126 @@ const ChallengeDetail = () => {
         <p style={{ fontSize: '1.2rem', color: 'var(--color-text)', fontWeight: '600' }}>{challenge.story || challenge.description}</p>
       </div>
 
-      {/* Main Play Area */}
-      {cType === 'PREDICT' && (
-        <div className="game-card" style={{ padding: '2rem', backgroundColor: '#e0f7fa' }}>
-          <h3 style={{ marginBottom: '1rem', fontWeight: '900' }}>Analyze this circuit:</h3>
-          <CircuitCanvas circuit={circuit} setCircuit={() => {}} isReadonly={true} numQubits={fullCircuit?.qubits || 3} />
-          
-          <div style={{ marginTop: '2rem' }}>
-            <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem', fontSize: '1.2rem' }}>
-              {challenge.predictorQuestion || 'What is your prediction?'}
-            </label>
-            
-            {challenge.predictorOptions && challenge.predictorOptions.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
-                {challenge.predictorOptions.map((opt, idx) => (
-                  <label key={idx} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '1.1rem' }}>
-                    <input 
-                      type="radio" 
-                      name="prediction" 
-                      value={opt}
-                      checked={prediction === opt}
-                      onChange={(e) => setPrediction(e.target.value)}
-                      style={{ marginRight: '0.5rem', transform: 'scale(1.2)' }}
-                    />
-                    {opt}
-                  </label>
-                ))}
-              </div>
-            ) : (
-              <input 
-                type="text" 
-                className="gamified-input" 
-                placeholder="e.g. 1 or superposition"
-                value={prediction}
-                onChange={(e) => setPrediction(e.target.value)}
-                style={{ maxWidth: '300px' }}
-              />
-            )}
-          </div>
-        </div>
-      )}
+      {/* Main Play Area & AI Chat */}
+      <div style={{ display: 'flex', gap: '2rem', height: showAI ? '600px' : 'auto', marginBottom: '2rem', flex: 1, minHeight: 0 }}>
+        {/* Challenge Pane */}
+        <div style={{
+          flex: showAI ? 1 : '1 1 100%',
+          height: showAI ? '100%' : 'auto',
+          display: showAI ? 'flex' : 'block',
+          flexDirection: showAI ? 'column' : 'initial',
+          overflowY: showAI ? 'auto' : 'visible'
+        }}>
+          {cType === 'PREDICT' && (
+            <div className="game-card" style={{ padding: '2rem', backgroundColor: '#e0f7fa', flex: showAI ? 1 : 'none', display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ marginBottom: '1rem', fontWeight: '900' }}>Analyze this circuit:</h3>
+              <CircuitCanvas circuit={circuit} setCircuit={() => { }} isReadonly={true} numQubits={fullCircuit?.qubits || 3} />
 
-      {(cType === 'BUILD' || cType === 'DEBUG') && (
-        <div className="game-card" style={{ padding: '2rem', backgroundColor: '#e0f7fa' }}>
-          <CircuitCanvas circuit={circuit} setCircuit={setCircuit} isReadonly={!challenge.allowCircuitEdit} numQubits={fullCircuit?.qubits || 3} />
+              <div style={{ marginTop: '2rem' }}>
+                <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '0.5rem', fontSize: '1.2rem' }}>
+                  {challenge.predictorQuestion || 'What is your prediction?'}
+                </label>
+
+                {challenge.predictorOptions && challenge.predictorOptions.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
+                    {challenge.predictorOptions.map((opt, idx) => (
+                      <label key={idx} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '1.1rem' }}>
+                        <input
+                          type="radio"
+                          name="prediction"
+                          value={opt}
+                          checked={prediction === opt}
+                          onChange={(e) => setPrediction(e.target.value)}
+                          style={{ marginRight: '0.5rem', transform: 'scale(1.2)' }}
+                        />
+                        {opt}
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <input
+                    type="text"
+                    className="gamified-input"
+                    placeholder="e.g. 1 or superposition"
+                    value={prediction}
+                    onChange={(e) => setPrediction(e.target.value)}
+                    style={{ maxWidth: '300px' }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {(cType === 'BUILD' || cType === 'DEBUG') && (
+            <div className="game-card" style={{ padding: '2rem', backgroundColor: '#e0f7fa', flex: showAI ? 1 : 'none', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+              <CircuitCanvas circuit={circuit} setCircuit={setCircuit} isReadonly={!challenge.allowCircuitEdit} numQubits={fullCircuit?.qubits || 3} />
+            </div>
+          )}
         </div>
-      )}
+
+        {/* AI Response Box */}
+        {showAI && (
+          <div className="game-card" style={{ flex: 1, padding: '1.5rem', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, color: 'var(--color-primary)', fontWeight: '900' }}>AI Response</h3>
+              <button
+                onClick={() => setShowAI(false)}
+                style={{ backgroundColor: '#333', color: '#fff', border: 'none', padding: '0.4rem 1rem', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer' }}
+              >
+                CLOSE
+              </button>
+            </div>
+
+            <div style={{ flex: 1, backgroundColor: '#e0f7fa', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', overflowY: 'auto', border: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} style={{
+                  alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
+                  backgroundColor: msg.role === 'user' ? 'var(--color-primary)' : '#fff',
+                  color: msg.role === 'user' ? '#fff' : 'var(--color-text)',
+                  padding: msg.role === 'user' ? '0.8rem 1rem' : '1.5rem',
+                  borderRadius: '8px',
+                  border: msg.role === 'user' ? 'none' : '3px solid var(--color-border)',
+                  maxWidth: '90%',
+                  boxShadow: msg.role === 'user' ? '0 2px 4px rgba(0,0,0,0.1)' : '4px 6px 0px var(--color-border)'
+                }}>
+                  <div className={msg.role === 'ai' ? 'markdown-content' : ''} style={{ margin: 0, fontWeight: msg.role === 'user' ? 'bold' : 'normal' }}>
+                    {msg.role === 'ai' ? (
+                      <ReactMarkdown remarkPlugins={[remarkMath]} rehypePlugins={[rehypeKatex]}>{msg.message}</ReactMarkdown>
+                    ) : (
+                      <p style={{ margin: 0 }}>{msg.message}</p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div style={{ alignSelf: 'flex-start', backgroundColor: '#fff', padding: '0.8rem 1rem', borderRadius: '8px', border: '2px solid var(--color-border)', color: '#666', fontWeight: 'bold', fontStyle: 'italic' }}>
+                  QuantaAI is thinking...
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <input
+                type="text"
+                placeholder="Ask for a hint..."
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSendChatMessage()}
+                disabled={isChatLoading}
+                style={{ flex: 1, padding: '0.8rem', border: '3px solid var(--color-border)', borderRadius: '8px', fontFamily: 'inherit', fontWeight: 'bold' }}
+              />
+              <button
+                className="btn-primary"
+                onClick={handleSendChatMessage}
+                disabled={isChatLoading || !chatInput.trim()}
+                style={{ padding: '0 1.5rem', fontWeight: 'bold' }}
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* Simulation Result */}
       {submissionResult && submissionResult.probabilities && (
@@ -275,19 +397,29 @@ const ChallengeDetail = () => {
       )}
       {successMsg && (
         <div className="game-card" style={{ backgroundColor: '#e8f5e9', color: '#2e7d32', padding: '1rem', marginTop: '2rem', textAlign: 'center' }}>
-          <strong>{successMsg} Redirecting...</strong>
+          <strong>{successMsg}</strong>
         </div>
       )}
 
-      {/* Submit Button */}
-      <div style={{ textAlign: 'center', marginTop: '3rem' }}>
-        <button 
-          className="btn-primary" 
+      {/* Action Buttons */}
+      <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '3rem' }}>
+        <button
+          className="btn-primary"
           style={{ fontSize: '1.5rem', padding: '1rem 4rem' }}
           onClick={handleSubmit}
           disabled={!circuit && !prediction}
         >
           Submit Answer
+        </button>
+        <button
+          className="btn-primary"
+          style={{ fontSize: '1.5rem', padding: '1rem 4rem' }}
+          onClick={() => {
+            if (hasSubmitted) setShowAI(!showAI);
+          }}
+          disabled={!hasSubmitted}
+        >
+          Ask AI
         </button>
       </div>
 

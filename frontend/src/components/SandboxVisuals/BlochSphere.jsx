@@ -43,9 +43,14 @@ const BlochSphere = ({ data }) => {
 
   // Plot axes
   const axisLine = { type: 'scatter3d', mode: 'lines', line: { color: '#888', width: 2 }, hoverinfo: 'none', showlegend: false };
-  plotData.push({ ...axisLine, x: [-1.2, 1.2], y: [0, 0], z: [0, 0], name: 'X' });
-  plotData.push({ ...axisLine, x: [0, 0], y: [-1.2, 1.2], z: [0, 0], name: 'Y' });
-  plotData.push({ ...axisLine, x: [0, 0], y: [0, 0], z: [-1.2, 1.2], name: 'Z' });
+  plotData.push({ ...axisLine, x: [-1.2, 1.2], y: [0, 0], z: [0, 0], name: 'X_line' });
+  plotData.push({ type: 'scatter3d', mode: 'text', x: [1.3], y: [0], z: [0], text: ['X'], textfont: { size: 16, color: '#555' }, showlegend: false, hoverinfo: 'none' });
+  
+  plotData.push({ ...axisLine, x: [0, 0], y: [-1.2, 1.2], z: [0, 0], name: 'Y_line' });
+  plotData.push({ type: 'scatter3d', mode: 'text', x: [0], y: [1.3], z: [0], text: ['Y'], textfont: { size: 16, color: '#555' }, showlegend: false, hoverinfo: 'none' });
+  
+  plotData.push({ ...axisLine, x: [0, 0], y: [0, 0], z: [-1.2, 1.2], name: 'Z_line' });
+  plotData.push({ type: 'scatter3d', mode: 'text', x: [0], y: [0], z: [1.3], text: ['Z'], textfont: { size: 16, color: '#555' }, showlegend: false, hoverinfo: 'none' });
 
   // Add bold vectors (lines + cones as arrowheads) for each qubit
   Object.keys(data.coordinates).forEach((key, idx) => {
@@ -89,11 +94,11 @@ const BlochSphere = ({ data }) => {
     title: 'Bloch Sphere',
     margin: { l: 0, r: 0, b: 0, t: 30 },
     scene: {
-      xaxis: { visible: false, range: [-1.2, 1.2] },
-      yaxis: { visible: false, range: [-1.2, 1.2] },
-      zaxis: { visible: false, range: [-1.2, 1.2] },
+      xaxis: { visible: false, range: [-1.4, 1.4] },
+      yaxis: { visible: false, range: [-1.4, 1.4] },
+      zaxis: { visible: false, range: [-1.4, 1.4] },
       camera: {
-        eye: { x: 1.5, y: 1.5, z: 1.2 }
+        eye: { x: 1.1, y: 1.1, z: 0.9 }
       },
       aspectmode: 'cube'
     },

@@ -2,10 +2,18 @@ import React from 'react';
 import './CircuitCanvas.css';
 
 const GATE_COLORS = {
-  'X': '#58cc02', // Green
   'H': '#1cb0f6', // Blue
+  'X': '#58cc02', // Green
+  'Y': '#f1c40f', // Yellow
+  'Z': '#e67e22', // Orange
+  'S': '#2ecc71', // Light Green
+  'T': '#1abc9c', // Teal
+  'RX': '#e74c3c', // Soft Red
+  'RY': '#3498db', // Light Blue
+  'RZ': '#9b59b6', // Purple
   'CNOT': '#ff4b4b', // Red
-  'CZ': '#8e44ad' // Purple
+  'CZ': '#8e44ad', // Deep Purple
+  'SWAP': '#34495e' // Navy
 };
 
 const NUM_STEPS = 15;
@@ -28,8 +36,8 @@ const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false, numQubits = 3 
       
       const newGate = { type: gateType, qubit, step };
       
-      // For CNOT, default target to adjacent qubit
-      if (gateType === 'CNOT' || gateType === 'CZ') {
+      // For two-qubit gates, default target to adjacent qubit
+      if (['CNOT', 'CZ', 'SWAP'].includes(gateType)) {
         newGate.target = qubit === numQubits - 1 ? qubit - 1 : qubit + 1;
       }
 
@@ -69,14 +77,14 @@ const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false, numQubits = 3 
           {gate && (
             <div 
               className="canvas-gate" 
-              style={{ backgroundColor: GATE_COLORS[gate.type] }}
+              style={{ backgroundColor: GATE_COLORS[gate.type] || '#333' }}
             >
               {gate.type}
             </div>
           )}
 
-          {/* Render CNOT Target Line if applicable */}
-          {gate && gate.type === 'CNOT' && gate.target !== undefined && (
+          {/* Render Target Line if applicable */}
+          {gate && ['CNOT', 'CZ', 'SWAP'].includes(gate.type) && gate.target !== undefined && (
             <div className={`cnot-line ${gate.target > q ? 'down' : 'up'}`}>
               <div className="cnot-target-dot"></div>
             </div>
@@ -98,17 +106,20 @@ const CircuitCanvas = ({ circuit, setCircuit, isReadonly = false, numQubits = 3 
         <div className="gate-palette game-card">
           <h4>Gates</h4>
           <div className="palette-gates">
-            {Object.keys(GATE_COLORS).map(type => (
-              <div 
-                key={type}
-                className="palette-gate"
-                style={{ backgroundColor: GATE_COLORS[type] }}
-                draggable
-                onDragStart={(e) => handleDragStart(e, type)}
-              >
-                {type}
-              </div>
-            ))}
+            {Object.keys(GATE_COLORS).map(type => {
+              if (['CNOT', 'CZ', 'SWAP'].includes(type) && numQubits < 2) return null;
+              return (
+                <div 
+                  key={type}
+                  className="palette-gate"
+                  style={{ backgroundColor: GATE_COLORS[type] }}
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, type)}
+                >
+                  {type}
+                </div>
+              );
+            })}
           </div>
           <p style={{ fontSize: '0.8rem', color: 'var(--color-text-muted)', marginTop: '1rem' }}>
             Drag to wire. Click on wire to remove.

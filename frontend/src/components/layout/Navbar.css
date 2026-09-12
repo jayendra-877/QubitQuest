@@ -17,6 +17,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  padding: 0 2rem;
 }
 
 .navbar-logo {
@@ -33,11 +34,17 @@
 .logo-icon {
   width: 56px;
   height: 56px;
-  object-fit: contain;
+  object-fit: cover;
   display: block;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
 }
 
 .logo-text {
+  font-family: 'Luckiest Guy', cursive;
+  font-weight: normal;
+  font-size: 2.2rem;
+  letter-spacing: 2px;
   color: var(--color-text);
 }
 
