@@ -11,4 +11,4 @@
 .idea/
 target/
 *.iml
-src/main/resources/application-local.properties
+**/application-local.properties
