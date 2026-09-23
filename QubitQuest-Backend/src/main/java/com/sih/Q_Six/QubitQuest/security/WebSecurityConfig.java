@@ -34,6 +34,7 @@ public class WebSecurityConfig {
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         http.authorizeHttpRequests(auth->auth
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/ws/arena").permitAll()
                 .requestMatchers("/challenges/**").hasRole("USER")
                 .requestMatchers("/playground/**").hasRole("USER")
                 .requestMatchers("/theory/**").hasRole("USER")
