@@ -6,6 +6,7 @@ import com.sih.Q_Six.QubitQuest.enums.ArenaGameMode;
 import com.sih.Q_Six.QubitQuest.enums.ArenaMatchStatus;
 import com.sih.Q_Six.QubitQuest.enums.MatchmakingStatus;
 import com.sih.Q_Six.QubitQuest.repository.ArenaMatchRepository;
+import com.sih.Q_Six.QubitQuest.service.ArenaGameService;
 import com.sih.Q_Six.QubitQuest.service.ArenaMatchmakingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -17,6 +18,7 @@ public class ArenaMatchmakingServiceImpl implements ArenaMatchmakingService {
 
     private final StringRedisTemplate redisTemplate;
     private final ArenaMatchRepository arenaMatchRepository;
+    private final ArenaGameService arenaGameService;
 
     private static final String QUEUE_PREFIX = "arena:queue:";
     private static final String MEMBER_SUFFIX = ":members";
@@ -95,6 +97,10 @@ public class ArenaMatchmakingServiceImpl implements ArenaMatchmakingService {
         match.setPlayer2Id(userId);
 
         ArenaMatch savedMatch = arenaMatchRepository.save(match);
+
+        arenaGameService.initializeMatch(
+                savedMatch.getId()
+        );
 
         return new MatchmakingResponse(
                 MatchmakingStatus.MATCH_FOUND,

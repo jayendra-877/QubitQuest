@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -37,7 +38,15 @@ public class ArenaMatch {
 
     private Instant countdownStartedAt;
 
-    private Instant gameStartedAt;
-
     private Instant gameEndsAt;
+
+    private Integer player1Score;
+
+    private Integer player2Score;
+
+    private Long winnerId;
+
+    private LocalDateTime gameStartedAt;
+
+    private LocalDateTime finishedAt;
 }
