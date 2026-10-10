@@ -17,6 +17,9 @@
 
 [🎥 Demo Video](https://youtu.be/3fcT0MJd3mg) • [📂 Repository](https://github.com/jayendra-877/QubitQuest)
 
+<img width="1440" height="900" alt="Screenshot 2026-09-26 at 1 16 53 PM" src="https://github.com/user-attachments/assets/85759ab2-350b-4838-aa94-d715357b574c" />
+
+
 </div>
 
 ---
@@ -65,6 +68,12 @@ Learning  →  Challenges  →  Quantum Sandbox  →  Arena  →  Quanta AI (ass
 ### 📚 1. Interactive Learning Module
 Structured learning resources (topics and missions) that introduce quantum concepts step by step. Students follow a guided path from basic concepts to practical quantum algorithm development, without depending entirely on textbooks or research papers.
 
+
+
+https://github.com/user-attachments/assets/dca4da60-a93e-4f05-8e0e-9bfef06d450d
+
+
+
 ### 🎮 2. Gamified Challenge Module
 Challenges are organized into **Easy, Medium and Hard** levels, with three challenge types:
 
@@ -79,6 +88,12 @@ Student progress and attempts are tracked per challenge.
 ### 🤖 3. Quanta AI: AI Learning Assistant
 An integrated AI tutor built with **Spring AI**. It gives **hints before answers**, guiding students towards the solution, and can provide a full explanation or the correct answer when asked.
 
+
+
+https://github.com/user-attachments/assets/25d0ae44-c324-46e9-b7f6-ed4443d2737a
+
+
+
 ### 🧪 4. Quantum Sandbox
 A free-form playground and IDE for quantum circuits. Students can:
 
@@ -88,6 +103,12 @@ A free-form playground and IDE for quantum circuits. Students can:
 - View execution results, **state-vector graphs and histograms**
 - Interact with an **interactive 3D Bloch sphere** visualization
 
+
+
+https://github.com/user-attachments/assets/0617297d-4947-421c-9c56-944be7264254
+
+
+
 ### ⚔️ 5. Arena: 1v1 Quantum Battles
 A real-time competitive mode built on WebSockets, with matchmaking and live match state stored in Redis.
 
@@ -95,6 +116,12 @@ A real-time competitive mode built on WebSockets, with matchmaking and live matc
 - Both players receive the **same set of questions** (Predict / Build / Debug).
 - They compete within a **fixed one-minute time limit**.
 - Points are awarded for performance, and the higher score wins.
+
+
+
+https://github.com/user-attachments/assets/5b596f21-76cd-4805-929f-b4ffe1a85595
+
+
 
 ### 🏆 6. Gamification & Skill Development
 Progressive difficulty, scoring and competition create a continuous loop:
