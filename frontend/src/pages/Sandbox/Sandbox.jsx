@@ -4,27 +4,29 @@ import SimulationResults from '../../components/SandboxVisuals/SimulationResults
 import StateVectorGraph from '../../components/SandboxVisuals/StateVectorGraph';
 import StateVectorTable from '../../components/SandboxVisuals/StateVectorTable';
 import BlochSphere from '../../components/SandboxVisuals/BlochSphere';
+import { fetchWithAuth } from '../../utils/api';
+import './Sandbox.css';
 
 const Sandbox = () => {
   const [circuit, setCircuit] = useState([]);
   const [numQubits, setNumQubits] = useState(3);
-  
+
   const [simulationData, setSimulationData] = useState(null);
   const [stateVectorData, setStateVectorData] = useState(null);
   const [blochSphereData, setBlochSphereData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  
+
   const [projectName, setProjectName] = useState('Untitled Project');
   const [projectDesc, setProjectDesc] = useState('');
   const [showAI, setShowAI] = useState(false);
-  
+
   const [chatMessages, setChatMessages] = useState([
     { role: 'ai', message: "Hello! I'm QuantaAI. How can I help you with your quantum circuit today?" }
   ]);
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
-  
+
   const handleAddQubit = () => {
     if (numQubits < 8) setNumQubits(numQubits + 1);
   };
@@ -38,7 +40,7 @@ const Sandbox = () => {
 
   const handleSendChatMessage = async () => {
     if (!chatInput.trim() || isChatLoading) return;
-    
+
     const userMsg = chatInput.trim();
     setChatInput('');
     setChatMessages(prev => [...prev, { role: 'user', message: userMsg }]);
@@ -62,14 +64,13 @@ const Sandbox = () => {
         message: userMsg
       };
 
-      const res = await fetch('http://localhost:8080/api/v1/playground/ask-ai', {
+      const res = await fetchWithAuth('/playground/ask-ai', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      
+
       const data = await res.json();
-      
+
       if (data && data.data) {
         let aiCircuit = null;
         let aiNumQubits = 3;
@@ -128,14 +129,13 @@ const Sandbox = () => {
 
       const fetchOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       };
 
       const [resExec, resState, resBloch] = await Promise.all([
-        fetch('http://localhost:8080/api/v1/playground/execute', fetchOptions).catch(e => ({ok: false, json: async () => ({error: 'Network Error'})})),
-        fetch('http://localhost:8080/api/v1/playground/statevector', fetchOptions).catch(e => ({ok: false, json: async () => ({error: 'Network Error'})})),
-        fetch('http://localhost:8080/api/v1/playground/bloch-sphere', fetchOptions).catch(e => ({ok: false, json: async () => ({error: 'Network Error'})}))
+        fetchWithAuth('/playground/execute', fetchOptions).catch(e => ({ ok: false, json: async () => ({ error: 'Network Error' }) })),
+        fetchWithAuth('/playground/statevector', fetchOptions).catch(e => ({ ok: false, json: async () => ({ error: 'Network Error' }) })),
+        fetchWithAuth('/playground/bloch-sphere', fetchOptions).catch(e => ({ ok: false, json: async () => ({ error: 'Network Error' }) }))
       ]);
 
       const [dataExec, dataState, dataBloch] = await Promise.all([
@@ -147,7 +147,7 @@ const Sandbox = () => {
       if (dataExec && dataExec.data) setSimulationData(dataExec.data);
       if (dataState && dataState.data) setStateVectorData(dataState.data);
       if (dataBloch && dataBloch.data) setBlochSphereData(dataBloch.data);
-      
+
     } catch (err) {
       console.error(err);
       setErrorMsg('Failed to run simulation. Check backend connection.');
@@ -161,33 +161,32 @@ const Sandbox = () => {
       {/* HEADER ROW */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2rem', padding: '0 1rem' }}>
         <h1 className="page-title" style={{ textAlign: 'left', margin: 0, fontSize: '2.5rem' }}>Quantum Sandbox</h1>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'stretch', width: '100%', maxWidth: '800px' }}>
-            <input 
-              type="text" 
+        <div className="sandbox-header-row">
+          <div className="sandbox-inputs">
+            <input
+              type="text"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               style={{ flex: 1, fontSize: '1.2rem', fontWeight: 'bold', textAlign: 'left', border: '2px solid var(--color-border)', borderRadius: '8px', padding: '0.5rem' }}
               placeholder="Project Name"
             />
-            <textarea 
+            <textarea
               value={projectDesc}
               onChange={(e) => setProjectDesc(e.target.value)}
               style={{ flex: 2, fontSize: '1rem', textAlign: 'left', border: '2px solid var(--color-border)', borderRadius: '8px', padding: '0.5rem', fontFamily: 'inherit', resize: 'vertical', minHeight: '45px' }}
               placeholder="Project Description"
             />
           </div>
-          
+
           <div>
-            <button 
-              className="btn-primary" 
-              style={{ 
-                padding: '0.6rem 1.5rem', 
+            <button
+              className="btn-primary"
+              style={{
+                padding: '0.6rem 1.5rem',
                 fontSize: '1rem',
                 backgroundColor: showAI ? '#ff4b4b' : '',
                 borderColor: showAI ? '#cc0000' : ''
-              }} 
+              }}
               onClick={() => setShowAI(!showAI)}
             >
               {showAI ? 'Close AI ✕' : 'Ask QuantaAI'}
@@ -195,7 +194,7 @@ const Sandbox = () => {
           </div>
         </div>
       </div>
-      
+
       {errorMsg && (
         <div style={{ backgroundColor: '#ffebee', color: '#c62828', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', textAlign: 'center', fontWeight: 'bold' }}>
           {errorMsg}
@@ -203,7 +202,7 @@ const Sandbox = () => {
       )}
 
       {/* Main Sandbox & AI/Sphere Area */}
-      <div style={{ display: 'flex', gap: '2rem', height: '600px', marginBottom: '2rem' }}>
+      <div className="sandbox-main-area">
         {/* Left Pane: Circuit Builder */}
         <div className="game-card" style={{ flex: 2, padding: '1.5rem', backgroundColor: '#e0f7fa', display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexShrink: 0 }}>
@@ -222,9 +221,9 @@ const Sandbox = () => {
               </button>
             </div>
           </div>
-          
+
           <div style={{ flex: 1, minHeight: 0 }}>
-             <CircuitCanvas circuit={circuit} setCircuit={setCircuit} isReadonly={false} numQubits={numQubits} />
+            <CircuitCanvas circuit={circuit} setCircuit={setCircuit} isReadonly={false} numQubits={numQubits} />
           </div>
         </div>
 
@@ -237,7 +236,7 @@ const Sandbox = () => {
               </div>
               <div style={{ flex: 1, backgroundColor: '#e0f7fa', borderRadius: '8px', padding: '1rem', marginBottom: '1rem', overflowY: 'auto', border: '2px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {chatMessages.map((msg, idx) => (
-                  <div key={idx} style={{ 
+                  <div key={idx} style={{
                     alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                     backgroundColor: msg.role === 'user' ? 'var(--color-primary)' : '#fff',
                     color: msg.role === 'user' ? '#fff' : 'var(--color-text)',
@@ -252,9 +251,9 @@ const Sandbox = () => {
                       <div style={{ marginTop: '1rem', borderTop: '2px dashed #ccc', paddingTop: '1rem' }}>
                         <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.9rem', color: '#666' }}>Suggested Circuit:</p>
                         <div style={{ backgroundColor: '#fff', padding: '0.5rem', borderRadius: '8px', border: '2px solid var(--color-border)', overflowX: 'auto' }}>
-                          <CircuitCanvas circuit={msg.circuit} setCircuit={() => {}} isReadonly={true} numQubits={msg.circuitQubits} />
+                          <CircuitCanvas circuit={msg.circuit} setCircuit={() => { }} isReadonly={true} numQubits={msg.circuitQubits} />
                         </div>
-                        <button 
+                        <button
                           onClick={() => {
                             setCircuit(msg.circuit);
                             setNumQubits(msg.circuitQubits);
@@ -274,17 +273,17 @@ const Sandbox = () => {
                 )}
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input 
-                  type="text" 
-                  placeholder="Ask something..." 
+                <input
+                  type="text"
+                  placeholder="Ask something..."
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendChatMessage()}
                   disabled={isChatLoading}
-                  style={{ flex: 1, padding: '0.8rem', border: '3px solid var(--color-border)', borderRadius: '8px', fontFamily: 'inherit', fontWeight: 'bold' }} 
+                  style={{ flex: 1, padding: '0.8rem', border: '3px solid var(--color-border)', borderRadius: '8px', fontFamily: 'inherit', fontWeight: 'bold' }}
                 />
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   onClick={handleSendChatMessage}
                   disabled={isChatLoading || !chatInput.trim()}
                   style={{ padding: '0 1.5rem', fontWeight: 'bold' }}
@@ -304,7 +303,7 @@ const Sandbox = () => {
                 </div>
               )}
               {isLoading && (
-                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <h2 style={{ color: 'var(--color-primary)' }}>Simulating...</h2>
                 </div>
               )}
@@ -330,7 +329,7 @@ const Sandbox = () => {
             </div>
           )}
           {isLoading && (
-             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <h2 style={{ color: 'var(--color-primary)' }}>Simulating...</h2>
             </div>
           )}

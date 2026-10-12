@@ -9,6 +9,7 @@ import Learning from './pages/Learning/Learning'
 import Challenges from './pages/Challenges/Challenges'
 import ChallengeDetail from './pages/Challenges/ChallengeDetail'
 import Sandbox from './pages/Sandbox/Sandbox'
+import Arena from './pages/Arena/Arena'
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -27,18 +28,19 @@ function App() {
     <>
       <ScrollToTop />
       <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Landing />} />
-        <Route path="login" element={<Login />} />
-        <Route path="signup" element={<Signup />} />
-        
-        {/* Core Modules - Publicly viewable */}
-        <Route path="learning" element={<Learning />} />
-        <Route path="challenges" element={<Challenges />} />
-        <Route path="challenges/:id" element={<ChallengeDetail />} />
-        <Route path="sandbox" element={<Sandbox />} />
-      </Route>
-    </Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Landing />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+
+          {/* Core Modules - Publicly viewable */}
+          <Route path="learning" element={<Learning />} />
+          <Route path="challenges" element={<Challenges />} />
+          <Route path="challenges/:id" element={<ChallengeDetail />} />
+          <Route path="sandbox" element={<Sandbox />} />
+          <Route path="arena" element={<Arena />} />
+        </Route>
+      </Routes>
     </>
   )
 }

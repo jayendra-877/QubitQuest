@@ -1,0 +1,38 @@
+/* Sandbox Layout */
+.sandbox-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sandbox-inputs {
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+  width: 100%;
+  max-width: 800px;
+}
+
+.sandbox-main-area {
+  display: flex;
+  gap: 2rem;
+  height: 600px;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 900px) {
+  .sandbox-header-row {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .sandbox-inputs {
+    flex-direction: column;
+  }
+  
+  .sandbox-main-area {
+    flex-direction: column;
+    height: auto;
+  }
+}

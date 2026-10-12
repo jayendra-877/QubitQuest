@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import './Challenges.css';
+import { fetchWithAuth } from '../../utils/api';
 
 // Coordinates estimated from the 287x1024 image
 // top is 0 at top, 100% at bottom
@@ -23,7 +24,6 @@ const QUESTS = [
   { id: 'c10', stage: 3, title: 'Quest 10', completed: false, top: '12.7%', left: '29.6%' }
 ];
 
-const API_URL = 'http://localhost:8080/api/v1';
 
 const Challenges = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const Challenges = () => {
   useEffect(() => {
     const fetchChallenges = async () => {
       try {
-        const res = await fetch(`${API_URL}/challenges?userId=1`);
+        const res = await fetchWithAuth('/challenges?userId=1');
         const json = await res.json();
         if (json.data) {
           // Flatten all challenges from all missions into a single array
@@ -78,8 +78,8 @@ const Challenges = () => {
 
   if (loading) {
     return (
-      <div className="challenges-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#fff' }}>
-        <h2>Loading Map...</h2>
+      <div className="challenges-page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+        <h2 style={{ color: 'var(--color-primary, #1e1e1e)', fontSize: '3rem', fontWeight: '900', letterSpacing: '2px', textShadow: '2px 2px 8px rgba(0,0,0,0.1)' }}>Loading Map...</h2>
       </div>
     );
   }

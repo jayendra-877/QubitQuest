@@ -5,8 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-
-const API_URL = 'http://localhost:8080/api/v1';
+import { fetchWithAuth } from '../../utils/api';
 
 const ChallengeDetail = () => {
   const { id } = useParams();
@@ -49,9 +48,8 @@ const ChallengeDetail = () => {
         userMessage: userMsg
       };
 
-      const res = await fetch(`http://localhost:8080/api/v1/challenges/${id}/help`, {
+      const res = await fetchWithAuth(`/challenges/${id}/help`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
 
@@ -73,13 +71,7 @@ const ChallengeDetail = () => {
   useEffect(() => {
     const fetchChallenge = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await fetch(`${API_URL}/challenges/${id}?userId=1`, {
-          headers: {
-            Authorization: token ? `Bearer ${token}` : '',
-            'Content-Type': 'application/json'
-          }
-        });
+        const res = await fetchWithAuth(`/challenges/${id}?userId=1`);
 
         if (!res.ok) throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
         const json = await res.json();
@@ -140,22 +132,18 @@ const ChallengeDetail = () => {
     setSuccessMsg('');
     setSubmissionResult(null);
     try {
-      const token = localStorage.getItem('token');
       const cType = (challenge.challengeType || challenge.type || '').toLowerCase();
 
       let url = '';
       let payload = {};
 
       if (cType === 'predict') {
-        url = `http://localhost:8080/challenges/${id}/predict?userId=1`;
-        if (API_URL.includes('/api/v1')) {
-          url = `${API_URL}/challenges/${id}/predict?userId=1`;
-        }
+        url = `/challenges/${id}/predict?userId=1`;
         payload = {
           predictedAnswer: prediction
         };
       } else {
-        url = `${API_URL}/challenges/${id}/submit?userId=1`;
+        url = `/challenges/${id}/submit?userId=1`;
         const sortedCanvasGates = [...circuit].sort((a, b) => a.step - b.step);
         const backendGates = sortedCanvasGates.map(g => {
           if (g.type === 'CNOT' || g.type === 'CZ') {
@@ -170,12 +158,8 @@ const ChallengeDetail = () => {
         };
       }
 
-      const res = await fetch(url, {
+      const res = await fetchWithAuth(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: token ? `Bearer ${token}` : ''
-        },
         body: JSON.stringify(payload)
       });
 
@@ -202,7 +186,8 @@ const ChallengeDetail = () => {
           }
         }
       } else {
-        setErrorMsg(result.message || result.error || 'An error occurred. Please try again.');
+        const errMsg = result.message || result.error?.message || (typeof result.error === 'string' ? result.error : 'An error occurred. Please try again.');
+        setErrorMsg(errMsg);
       }
     } catch (err) {
       setErrorMsg('An error occurred while submitting.');
@@ -231,7 +216,7 @@ const ChallengeDetail = () => {
 
       {/* Header */}
       <div className="game-card" style={{ padding: '2rem', marginBottom: '2rem', backgroundColor: '#fff' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="challenge-detail-header">
           <div>
             <span style={{ backgroundColor: 'var(--color-primary)', color: '#fff', padding: '0.2rem 0.5rem', borderRadius: '4px', fontWeight: 'bold', fontSize: '0.8rem', textTransform: 'uppercase', marginRight: '1rem' }}>
               {cType}
@@ -247,14 +232,15 @@ const ChallengeDetail = () => {
       </div>
 
       {/* Main Play Area & AI Chat */}
-      <div style={{ display: 'flex', gap: '2rem', height: showAI ? '600px' : 'auto', marginBottom: '2rem', flex: 1, minHeight: 0 }}>
+      <div className="challenge-detail-main" style={{ height: showAI ? '600px' : 'auto' }}>
         {/* Challenge Pane */}
         <div style={{
           flex: showAI ? 1 : '1 1 100%',
           height: showAI ? '100%' : 'auto',
           display: showAI ? 'flex' : 'block',
           flexDirection: showAI ? 'column' : 'initial',
-          overflowY: showAI ? 'auto' : 'visible'
+          overflowY: showAI ? 'auto' : 'visible',
+          minWidth: 0
         }}>
           {cType === 'PREDICT' && (
             <div className="game-card" style={{ padding: '2rem', backgroundColor: '#e0f7fa', flex: showAI ? 1 : 'none', display: 'flex', flexDirection: 'column' }}>
@@ -402,7 +388,7 @@ const ChallengeDetail = () => {
       )}
 
       {/* Action Buttons */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '3rem' }}>
+      <div className="challenge-detail-actions">
         <button
           className="btn-primary"
           style={{ fontSize: '1.5rem', padding: '1rem 4rem' }}
