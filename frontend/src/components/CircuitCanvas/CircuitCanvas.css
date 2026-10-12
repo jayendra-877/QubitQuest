@@ -42,7 +42,7 @@
   font-size: 1.2rem;
   border-radius: 8px;
   border: 3px solid var(--color-border);
-  box-shadow: 0 4px 0px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
   cursor: grab;
   user-select: none;
 }
@@ -113,7 +113,7 @@
   font-size: 1.1rem;
   border-radius: 8px;
   border: 3px solid var(--color-border);
-  box-shadow: 0 3px 0px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 0px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   transition: transform 0.1s;
 }
@@ -134,12 +134,14 @@
 
 .cnot-line.down {
   top: 50%;
-  height: 90px; /* reaches down to next row */
+  height: 90px;
+  /* reaches down to next row */
 }
 
 .cnot-line.up {
   bottom: 50%;
-  height: 90px; /* reaches up to prev row */
+  height: 90px;
+  /* reaches up to prev row */
 }
 
 .cnot-target-dot {
@@ -157,4 +159,22 @@
 
 .cnot-line.up .cnot-target-dot {
   top: 0;
+}
+@media (max-width: 900px) {
+  .circuit-canvas-container {
+    gap: 1rem;
+  }
+  .gate-palette {
+    min-width: 80px;
+    width: 80px;
+    padding: 1rem 0.5rem;
+  }
+  .palette-gate {
+    width: 45px;
+    height: 45px;
+    font-size: 1rem;
+  }
+  .canvas-grid {
+    padding: 1rem;
+  }
 }
